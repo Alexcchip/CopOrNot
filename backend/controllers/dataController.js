@@ -1,6 +1,5 @@
 const { getDB } = require('../services/database');
 
-// GET /api/data
 const getData = async (req, res) => {
   try {
     const db = getDB();
@@ -12,7 +11,6 @@ const getData = async (req, res) => {
   }
 };
 
-// POST /api/post
 const postData = async (req, res) => {
   try {
     const db = getDB();
@@ -28,7 +26,7 @@ const clearSet = async (req, res) => {
     try{
         const db = getDB();
         const collection = db.collection('reports');
-        await collection.deleteMany({}); // Clear all documents in the collection
+        await collection.deleteMany({});
         res.json({ message: 'All documents cleared successfully' });
     } catch (err) {
         res.status(500).send("Error clearing data")

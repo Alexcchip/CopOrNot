@@ -20,12 +20,12 @@ const connectDB = async () => {
 
     // Connect the client to the server
     await client.connect();
-    db = client.db('CopOrNot'); // Change 'test' to the name of your target database
+    db = client.db('CopOrNot');
     console.log("Successfully connected to MongoDB!");
 
   } catch (err) {
     console.error("Error connecting to MongoDB:", err.message);
-    process.exit(1); // Exit the process with failure
+    process.exit(1);
   }
 };
 
@@ -35,6 +35,14 @@ const getDB = () => {
   }
   return db;
 };
+
+process.on('SIGINT', () => {
+  mongoose.connection.close(() => {
+    console.log('MongoDB connection closed');
+    process.exit(0);
+  });
+});
+
 
 const closeDB = async () => {
   try {
