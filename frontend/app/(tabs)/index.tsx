@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 const App = () => {
   
-  console.log("test")
+  console.log("home page")
   return (
     <View style={styles.container}>
       <View style={styles.copornot}>

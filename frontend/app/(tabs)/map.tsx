@@ -1,6 +1,8 @@
 import { View, StyleSheet, Text } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
+import { useLocation } from '../context/LocationContext'; // Adjust the path as needed
+
 
 type Station = {
   lat: number;
@@ -11,9 +13,10 @@ type Station = {
 };
 
 export default function MapScreen() {
+  const { location } = useLocation();
   const [stations, setStations] = useState<Station[]>([]);
   const [error, setError] = useState<string | null>(null);
-
+  console
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -22,8 +25,7 @@ export default function MapScreen() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const rawData = await response.json();
-        console.log(rawData)
-        // Clean the data
+        console.log(location)
         const cleanedData = rawData.map((item: any) => ({
           lat: parseFloat(item[" lat"] || item.lat), // Clean key and ensure it's a number
           lon: parseFloat(item[" lon"] || item.lon),
@@ -48,13 +50,12 @@ export default function MapScreen() {
   
     fetchStations();
   }, []);  
-  console.log(JSON.stringify(stations[0], null, 2))
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 40.7128, // Default center
+          latitude: 40.7128, 
           longitude: -74.0060,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
@@ -71,6 +72,16 @@ export default function MapScreen() {
             description={`Trains: ${station.trains}`}
           />
         ))}
+        {location && (
+          <Marker
+            coordinate={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            }}
+            title="You are here"
+            pinColor="blue" // Differentiates the user's marker
+          />
+        )}
       </MapView>
       {error && <Text style={{ color: "red" }}>Error: {error}</Text>}
     </View>

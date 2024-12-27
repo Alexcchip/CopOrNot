@@ -2,11 +2,13 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
+import { LocationProvider } from '../context/LocationContext'; // Adjust the path as needed
 import { View, Text, StyleSheet } from "react-native";
 // import TestIcon from '../assets/images/testicon.svg';
 
 export default function TabLayout() {
   return (
+    <LocationProvider>
     <Tabs
       screenOptions={{
 
@@ -78,12 +80,10 @@ export default function TabLayout() {
           },
         }}
       />
-      
-      
     </Tabs>
+    </LocationProvider>
   );
 }
-
 const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: "blue",
