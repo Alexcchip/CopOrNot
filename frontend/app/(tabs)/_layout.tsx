@@ -2,11 +2,19 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
+import { View, Text, StyleSheet } from "react-native";
+// import TestIcon from '../assets/images/testicon.svg';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+
+        header: () => (
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>Avenue X (F)</Text>
+          </View>
+        ),
         
         // Tab Bar Style
         tabBarStyle: {
@@ -32,7 +40,7 @@ export default function TabLayout() {
         },
         
 
-        headerShown: false, // Add this line to hide the header globally
+        headerShown: true, //yesssir we in bussyiness now
 
       }}
     >
@@ -75,3 +83,16 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    backgroundColor: "blue",
+    padding: 30,
+    alignItems: "center",
+  },
+  headerText: {
+    color: "white",
+    fontSize: 48,
+    fontWeight: "bold",
+  },
+});

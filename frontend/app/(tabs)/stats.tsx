@@ -6,7 +6,7 @@ const Stats = () => {
 
     return (
         <Text>
-            Test stats
+            Test stats hi
         </Text>
     )
 }
