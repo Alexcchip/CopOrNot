@@ -33,4 +33,15 @@ const clearSet = async (req, res) => {
     }
 }
 
-module.exports = { getData, postData, clearSet };
+const getStations = async (req, res) => {
+  try {
+    const db = getDB();
+    const collection = db.collection('stations');
+    const result = await collection.find().toArray();
+    res.json(result); 
+  } catch (err) {
+    res.status(500).send("Error getting stations");
+  }
+};
+
+module.exports = { getStations,getData, postData, clearSet };
