@@ -5,6 +5,8 @@ import { Platform } from 'react-native';
 import { LocationProvider } from '../context/LocationContext'; // 
 import { View, Text, StyleSheet } from "react-native";
 import StationProvider from '../context/StationContext'; // If using default export
+import CText from '../components/CText'
+import TestIcon from '../components/TestIcon'
 
 
 
@@ -17,7 +19,9 @@ export default function TabLayout() {
 
         header: () => (
           <View style={styles.headerContainer}>
-            <Text style={styles.headerText}>Avenue X (F)</Text>
+            <View style={styles.whiteStripe} />
+            <CText style={styles.headerText}>Avenue X         <TestIcon width={50} height={50} /></CText>
+            
           </View>
         ),
         
@@ -89,11 +93,17 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: "#191521",
     padding: 30,
+    paddingLeft: 0,
+    paddingRight: 0,
     alignItems: "center",
   },
   headerText: {
     color: "white",
     fontSize: 48,
-    fontWeight: "bold",
   },
+  whiteStripe:{
+    width: '100%',
+    height: 5,
+    backgroundColor: 'white',
+  }
 });

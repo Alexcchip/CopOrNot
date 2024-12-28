@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import CText from '../components/CText'
 
 const App = () => {
   console.log("home page");
@@ -9,16 +10,16 @@ const App = () => {
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
         <View style={styles.cop}>
-          <Text style={styles.copOrNotText}>Cop</Text>
+          <CText style={styles.copOrNotText}>Cop</CText>
         </View>
         <View style={styles.not}>
-          <Text style={styles.copOrNotText}>Not</Text>
+          <CText style={styles.copOrNotText}>Not</CText>
         </View>
       </View>
 
       {/* Logs Section */}
       <View style={styles.logsContainer}>
-        <Text style={styles.logsText}>Logs</Text>
+        <CText style={styles.logsText}>Logs</CText>
       </View>
     </View>
   );
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
     marginLeft: '2.5%',
   },
   copOrNotText: {
-    fontSize: 16,
+    fontSize: 56,
     color: 'white',
     textAlign: 'center',
   },
@@ -73,8 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#191521',
   },
   logsText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 56,
     color: 'white',
   },
 });
