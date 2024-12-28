@@ -4,8 +4,12 @@ import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { LocationProvider } from '../context/LocationContext'; // 
 import { View, Text, StyleSheet } from "react-native";
+import StationProvider from '../context/StationContext'; // If using default export
+
+
 export default function TabLayout() {
   return (
+    <StationProvider>
     <LocationProvider>
     <Tabs
       screenOptions={{
@@ -77,6 +81,7 @@ export default function TabLayout() {
       />
     </Tabs>
     </LocationProvider>
+    </StationProvider>
   );
 }
 const styles = StyleSheet.create({
