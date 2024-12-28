@@ -53,6 +53,7 @@ export default function MapScreen() {
   return (
     <View style={styles.container}>
       <MapView
+        key={stations.length}
         style={styles.map}
         initialRegion={{
           latitude: 40.7128, 
