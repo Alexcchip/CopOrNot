@@ -7,6 +7,7 @@ import { View, Text, StyleSheet } from "react-native";
 import StationProvider from '../context/StationContext'; // If using default export
 
 
+
 export default function TabLayout() {
   return (
     <StationProvider>
@@ -86,7 +87,7 @@ export default function TabLayout() {
 }
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: "blue",
+    backgroundColor: "#191521",
     padding: 30,
     alignItems: "center",
   },

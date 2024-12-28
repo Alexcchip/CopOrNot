@@ -1,57 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 const App = () => {
-  
-  console.log("home page")
+  console.log("home page");
+
   return (
     <View style={styles.container}>
-      <View style={styles.copornot}>
-        <Text style={styles.textcop}>HELLLO</Text>
+      {/* Cop or Not Section */}
+      <View style={styles.copOrNotContainer}>
+        <View style={styles.cop}>
+          <Text style={styles.copOrNotText}>Cop</Text>
+        </View>
+        <View style={styles.not}>
+          <Text style={styles.copOrNotText}>Not</Text>
+        </View>
       </View>
-      <View style={styles.logs}>
-        <Text style={styles.textlog}>hai guys</Text>
+
+      {/* Logs Section */}
+      <View style={styles.logsContainer}>
+        <Text style={styles.logsText}>Logs</Text>
       </View>
     </View>
-    
   );
 };
 
-const baseView = {
+// Base Style for Consistency
+const baseViewStyle = {
   flex: 1,
-  padding: 20,
   borderRadius: 10,
-  margin: 10,
   width: '90%',
-  alignItems: "center",
-  justifyContent: "center",
+  alignItems: 'center',
+  justifyContent: 'center',
   backgroundColor: 'white',
 };
 
+// StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'purple',
+    backgroundColor: '#261C2E',
   },
-  copornot:{
-    ...baseView,
+  copOrNotContainer: {
+    ...baseViewStyle,
+    paddingTop: '5%',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginBottom: '2.5%',
+    backgroundColor: 'transparent', // Override background for parent container
   },
-  logs:{
-    ...baseView,
+  cop: {
+    ...baseViewStyle,
+    backgroundColor: '#ED4D4D',
+    height: '100%',
+    marginRight: '2.5%',
+  },
+  not: {
+    ...baseViewStyle,
+    backgroundColor: '#6DC35E',
+    height: '100%',
+    marginLeft: '2.5%',
+  },
+  copOrNotText: {
+    fontSize: 16,
+    color: 'white',
+    textAlign: 'center',
+  },
+  logsContainer: {
+    ...baseViewStyle,
     marginTop: '2.5%',
+    marginBottom: '5%',
+    backgroundColor: '#191521',
   },
-  title: {
+  logsText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
   },
-  text:{
-    fontSize: 16,
-    color: 'black',
-    textAlign: 'center',
-  }
 });
 
 export default App;
