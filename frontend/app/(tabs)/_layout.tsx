@@ -3,12 +3,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { LocationProvider } from '../context/LocationContext'; // 
-import { View, Text, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import StationProvider from '../context/StationContext'; // If using default export
-import CText from '../components/CText'
-import TestIcon from '../components/TestIcon'
-
-
 
 export default function TabLayout() {
   return (
@@ -16,15 +12,6 @@ export default function TabLayout() {
     <LocationProvider>
     <Tabs
       screenOptions={{
-
-        header: () => (
-          <View style={styles.headerContainer}>
-            <View style={styles.whiteStripe} />
-            <CText style={styles.headerText}>Avenue X         <TestIcon width={50} height={50} /></CText>
-            
-          </View>
-        ),
-        
         tabBarStyle: {
           height: 60,
           paddingBottom: 5,
@@ -46,7 +33,7 @@ export default function TabLayout() {
         },
         
 
-        headerShown: true, //yesssir we in bussyiness now
+        headerShown: false, //yesssir we in bussyiness now
 
       }}
     >

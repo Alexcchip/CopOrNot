@@ -3,7 +3,7 @@ import { StatusBar, View, Text, StyleSheet, TouchableOpacity, Alert } from 'reac
 import CText from '../components/CText'
 import { useStations } from '../context/StationContext'; 
 import { useLocation } from '../context/LocationContext';
-
+import TestIcon from '../components/TestIcon'
 type Station = {
   lat: number;
   lon: number;
@@ -30,7 +30,13 @@ const App = () => {
   console.log(closestStation?.station + " " + closestStation?.trains)
   console.log("check");
   return (
+    
     <View style={styles.container}>
+      <View style={styles.headerContainer}>
+            <View style={styles.whiteStripe} />
+            <CText style={styles.headerText}>{closestStation?.station}          <TestIcon width={50} height={50} /></CText>
+            
+          </View>
       <StatusBar translucent backgroundColor="transparent" />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
@@ -60,6 +66,7 @@ const App = () => {
 
 // Base Style for Consistency
 const baseViewStyle = {
+  
   position: 'relative',
   borderRadius: 10,
   width: '90%',
@@ -70,6 +77,20 @@ const baseViewStyle = {
 
 // StyleSheet
 const styles = StyleSheet.create({
+  headerContainer: {
+    backgroundColor: "black",
+    paddingTop: 50,
+    paddingBottom: 30,
+    paddingLeft: 0,
+    paddingRight: 0,
+    alignItems: "center",
+  },
+  headerText: {
+    paddingTop: 10,
+    color: "white",
+    fontSize: 48,
+  },
+
   whiteStripe:{
     position: 'absolute',
     top: 40,
