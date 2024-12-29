@@ -1,19 +1,25 @@
 import React from 'react';
-import { StatusBar, View, Text, StyleSheet } from 'react-native';
+import { StatusBar, View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import CText from '../components/CText'
 
 const App = () => {
   console.log("home page");
+
+  const handlePress = () => {
+    Alert.alert('Button Pressed!', 'You clicked the button.');
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
-        <View style={styles.cop}>
-          <View style={styles.whiteStripe} />
-          <CText style={styles.copOrNotText}>Cop</CText>
-        </View>
+        <TouchableOpacity>
+          <View style={styles.cop}>
+            <View style={styles.whiteStripe} />
+              <CText style={styles.copOrNotText}>Cop</CText>
+          </View>
+        </TouchableOpacity>
         <View style={styles.not}>
           <View style={styles.whiteStripe} />
           <CText style={styles.copOrNotText}>Not</CText>
@@ -92,5 +98,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 });
+
+
 
 export default App;
