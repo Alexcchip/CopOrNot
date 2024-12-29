@@ -33,10 +33,10 @@ const App = () => {
     
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-            <View style={styles.whiteStripe} />
-            <CText style={styles.headerText}>{closestStation?.station}          <TestIcon width={50} height={50} /></CText>
+          <View style={styles.whiteStripe} />
+          <CText style={styles.headerText}>{closestStation?.station}          <TestIcon width={50} height={50} /></CText>
             
-          </View>
+        </View>
       <StatusBar translucent backgroundColor="transparent" />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
@@ -78,6 +78,7 @@ const baseViewStyle = {
 // StyleSheet
 const styles = StyleSheet.create({
   headerContainer: {
+    width: '100%',
     backgroundColor: "black",
     paddingTop: 50,
     paddingBottom: 30,
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
 
   whiteStripe:{
     position: 'absolute',
-    top: 40,
+    top: 50,
     width: '100%',
     height: 5,
     backgroundColor: 'white',
