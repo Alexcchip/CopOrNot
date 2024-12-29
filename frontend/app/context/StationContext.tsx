@@ -16,20 +16,32 @@ type StationContextType = {
   error: string | null;
 };
 
-// Create the StationContext with proper typing
 export const StationContext = createContext<StationContextType | undefined>(undefined);
 
 export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Explicitly type the stations state
   const [stations, setStations] = useState<Station[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Data cleaning logic
+  const cleanStationData = (rawData: any[]): Station[] => {
+    return rawData.map((item) => ({
+      lat: parseFloat(item[" lat"] || item.lat),
+      lon: parseFloat(item[" lon"] || item.lon),
+      station: item[" station"] || item.station,
+      trains: item[" trains"] || item.trains,
+      _id: item._id,
+    }));
+  };
 
   useEffect(() => {
     const fetchStations = async () => {
       try {
         const response = await fetch('http://172.20.10.2:5000/api/stations');
-        const data = await response.json();
-        setStations(data); // Ensure the API response matches the Station type
+        const rawData = await response.json();
+
+        // Clean the data before storing it
+        const cleanedData = cleanStationData(rawData);
+        setStations(cleanedData);
       } catch (err: any) {
         setError(err.message);
       }

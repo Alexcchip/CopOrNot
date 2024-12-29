@@ -7,6 +7,7 @@ import { useStations } from '../context/StationContext';
 export default function MapScreen() {
   const { location } = useLocation();
   const { stations, error } = useStations();
+  console.log(stations)
   return (
     <View style={styles.container}>
       <MapView

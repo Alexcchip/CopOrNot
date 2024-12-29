@@ -1,13 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar, View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import CText from '../components/CText'
+import { useStations } from '../context/StationContext'; 
+import { useLocation } from '../context/LocationContext';
 
+type Station = {
+  lat: number;
+  lon: number;
+  station: string;
+  trains: string | number;
+  _id: string;
+};
 const App = () => {
-  console.log("home page");
 
+    const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
+    const { location } = useLocation(); // Access the user's location
+    const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
+    // Find the closest station when the location changes
+    useEffect(() => {
+      if (location) {
+        const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+        setClosestStation(closestStation);
+      }
+    }, [location, stations]); // Recalculate if location or stations change
   const handlePress = () => {
     Alert.alert('Button Pressed!', 'You clicked the button.');
   };
+  console.log(closestStation?.station + " " + closestStation?.trains)
 
   return (
     <View style={styles.container}>
