@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StatusBar, View, Text, StyleSheet } from 'react-native';
 import CText from '../components/CText'
 
 const App = () => {
@@ -7,12 +7,15 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
         <View style={styles.cop}>
+          <View style={styles.whiteStripe} />
           <CText style={styles.copOrNotText}>Cop</CText>
         </View>
         <View style={styles.not}>
+          <View style={styles.whiteStripe} />
           <CText style={styles.copOrNotText}>Not</CText>
         </View>
       </View>
@@ -27,7 +30,7 @@ const App = () => {
 
 // Base Style for Consistency
 const baseViewStyle = {
-  flex: 1,
+  position: 'relative',
   borderRadius: 10,
   width: '90%',
   alignItems: 'center',
@@ -37,6 +40,13 @@ const baseViewStyle = {
 
 // StyleSheet
 const styles = StyleSheet.create({
+  whiteStripe:{
+    position: 'absolute',
+    top: 40,
+    width: '100%',
+    height: 5,
+    backgroundColor: 'white',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -44,6 +54,7 @@ const styles = StyleSheet.create({
   },
   copOrNotContainer: {
     ...baseViewStyle,
+    flex: 3,
     paddingTop: '5%',
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -52,23 +63,26 @@ const styles = StyleSheet.create({
   },
   cop: {
     ...baseViewStyle,
+    flex: 1,
     backgroundColor: '#ED4D4D',
     height: '100%',
-    marginRight: '2.5%',
+    marginRight: '5%',
   },
   not: {
+    flex: 1,
     ...baseViewStyle,
     backgroundColor: '#6DC35E',
     height: '100%',
-    marginLeft: '2.5%',
+    marginLeft: '5%',
   },
   copOrNotText: {
-    fontSize: 56,
+    fontSize: 48,
     color: 'white',
     textAlign: 'center',
   },
   logsContainer: {
     ...baseViewStyle,
+    flex: 4,
     marginTop: '2.5%',
     marginBottom: '5%',
     backgroundColor: '#191521',

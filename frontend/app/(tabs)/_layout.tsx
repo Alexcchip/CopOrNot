@@ -36,8 +36,8 @@ export default function TabLayout() {
 
         },
         
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'grey',
         tabBarShowLabel: false,  
         tabBarLabelStyle: {
           fontSize: 12,
@@ -91,13 +91,15 @@ export default function TabLayout() {
 }
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: "#191521",
-    padding: 30,
+    backgroundColor: "black",
+    paddingTop: 50,
+    paddingBottom: 30,
     paddingLeft: 0,
     paddingRight: 0,
     alignItems: "center",
   },
   headerText: {
+    paddingTop: 10,
     color: "white",
     fontSize: 48,
   },
