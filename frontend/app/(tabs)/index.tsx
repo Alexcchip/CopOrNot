@@ -14,7 +14,7 @@ const App = () => {
       <StatusBar translucent backgroundColor="transparent" />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity style={styles.copOrNotContainer}>
           <View style={styles.cop}>
             <View style={styles.whiteStripe} />
               <CText style={styles.copOrNotText}>Cop</CText>
