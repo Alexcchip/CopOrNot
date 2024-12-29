@@ -7,10 +7,10 @@ import { useStations } from '../context/StationContext';
 export default function MapScreen() {
   const { location } = useLocation();
   const { stations, error } = useStations();
-
   return (
     <View style={styles.container}>
       <MapView
+        key={JSON.stringify(stations)}
         style={styles.map}
         initialRegion={{
           latitude: location ? location.coords.latitude : 40.7128,

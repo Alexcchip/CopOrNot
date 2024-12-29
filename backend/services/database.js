@@ -1,7 +1,6 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
 
-// Use environment variables for sensitive data
 const uri = process.env.MONGO_URI;
 
 let db;
