@@ -36,12 +36,9 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await fetch('http://172.20.10.2:5000/api/stations');
-        const rawData = await response.json();
-
-        // Clean the data before storing it
-        const cleanedData = cleanStationData(rawData);
-        setStations(cleanedData);
+        const response = await fetch('http://192.168.0.235:5000/api/stations');
+        const data = await response.json();
+        setStations(data); // Ensure the API response matches the Station type
       } catch (err: any) {
         setError(err.message);
       }

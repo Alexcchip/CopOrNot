@@ -16,6 +16,7 @@ const App = () => {
     const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
     const { location } = useLocation(); // Access the user's location
     const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
+    const [flexValue, setFlexValue] = useState(1);
     // Find the closest station when the location changes
     useEffect(() => {
       if (location) {
@@ -24,25 +25,29 @@ const App = () => {
       }
     }, [location, stations]); // Recalculate if location or stations change
   const handlePress = () => {
-    Alert.alert('Button Pressed!', 'You clicked the button.');
+    setFlexValue(flexValue === 1 ? 3: 1)
   };
   console.log(closestStation?.station + " " + closestStation?.trains)
-
+  console.log("check");
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
-        <TouchableOpacity style={styles.copOrNotContainer}>
+
+        <TouchableOpacity style={{flex: 1}} onPress={handlePress}>
           <View style={styles.cop}>
             <View style={styles.whiteStripe} />
               <CText style={styles.copOrNotText}>Cop</CText>
           </View>
         </TouchableOpacity>
-        <View style={styles.not}>
-          <View style={styles.whiteStripe} />
-          <CText style={styles.copOrNotText}>Not</CText>
-        </View>
+
+        <TouchableOpacity style={{flex: 1}} onPress={handlePress}>
+          <View style={styles.not}>
+            <View style={styles.whiteStripe} />
+            <CText style={styles.copOrNotText}>Not</CText>
+          </View>
+        </TouchableOpacity>
       </View>
 
       {/* Logs Section */}
