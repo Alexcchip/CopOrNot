@@ -5,6 +5,7 @@ import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext';
 import TestIcon from '../components/TestIcon'
 import {View, StyleSheet, StatusBar} from 'react-native'
+
 type Station = {
     lat: number;
     lon: number;

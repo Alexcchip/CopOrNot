@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StatusBar, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import CText from '../components/CText'
 import { useStations } from '../context/StationContext'; 
 import { useLocation } from '../context/LocationContext';
 import TestIcon from '../components/TestIcon'
 import Header from '../components/Header'
+import Log from '../components/Log'
+import LogBunch from '../components/LogBunch'
+
+const sampleLogs = [
+  {timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true},
+  {timestamp: '12:43pm', entrance: 'Side Entrance', copOrNot: false},
+  {timestamp: '12:33pm', entrance: 'Main Entrance', copOrNot: true},
+  {timestamp: '12:05pm', entrance: 'Main Entrance', copOrNot: true},
+  {timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false},
+];
+
 const App = () => {
   const [isCopPressed, setIsCopPressed] = useState(false); // Track if the button was pressed
   const [isNotPressed, setIsNotPressed] = useState(false); // Track if the button was pressed
@@ -33,7 +44,7 @@ const App = () => {
             disabled={isCopPressed}
           >
             <View style={styles.whiteStripe} />
-            <Text style={styles.copOrNotText}>Cop</Text>
+            <CText style={styles.copOrNotText}>Cop</CText>
           </TouchableOpacity>
         )}
 
@@ -44,14 +55,14 @@ const App = () => {
             disabled={isNotPressed}
           >
             <View style={styles.whiteStripe} />
-            <Text style={styles.copOrNotText}>Not</Text>
+            <CText style={styles.copOrNotText}>Not</CText>
           </TouchableOpacity>
         )}
       </View>
 
       {/* Logs Section */}
       <View style={styles.logsContainer}>
-        <CText style={styles.logsText}>Logs</CText>
+        <LogBunch logs={sampleLogs} />
       </View>
     </View>
   );
