@@ -4,56 +4,49 @@ import CText from '../components/CText'
 import { useStations } from '../context/StationContext'; 
 import { useLocation } from '../context/LocationContext';
 import TestIcon from '../components/TestIcon'
-type Station = {
-  lat: number;
-  lon: number;
-  station: string;
-  trains: string | number;
-  _id: string;
-};
+import Header from '../components/Header'
 const App = () => {
-
-    const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
-    const { location } = useLocation(); // Access the user's location
-    const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
-    const [flexValue, setFlexValue] = useState(1);
-    // Find the closest station when the location changes
-    useEffect(() => {
-      if (location) {
-        const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
-        setClosestStation(closestStation);
-      }
-    }, [location, stations]); // Recalculate if location or stations change
-  const handlePress = () => {
-    setFlexValue(flexValue === 1 ? 3: 1)
+  const [isCopPressed, setIsCopPressed] = useState(false); // Track if the button was pressed
+  const [isNotPressed, setIsNotPressed] = useState(false); // Track if the button was pressed
+  const handleCopPress = () => {
+    setIsCopPressed(true);
+    setIsNotVisible(false);
   };
-  console.log(closestStation?.station + " " + closestStation?.trains)
-  console.log("check");
+  const handleNotPress = () => {
+    setIsNotPressed(true);
+    setIsCopVisible(false);
+  };
+
+  const [isCopVisible, setIsCopVisible] = useState(true); // Track component visibility
+  const [isNotVisible, setIsNotVisible] = useState(true); // Track component visibility
+
   return (
-    
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-          <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>{closestStation?.station}          <TestIcon width={50} height={50} /></CText>
-            
-        </View>
-      <StatusBar translucent backgroundColor="transparent" />
+      <Header />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
 
-        <TouchableOpacity style={{flex: 1}} onPress={handlePress}>
-          <View style={styles.cop}>
+        {isCopVisible && ( // Conditionally render the "Cop" button
+          <TouchableOpacity
+            style={[styles.cop, isCopPressed && styles.copPressed]}
+            onPress={handleCopPress}
+            disabled={isCopPressed}
+          >
             <View style={styles.whiteStripe} />
-              <CText style={styles.copOrNotText}>Cop</CText>
-          </View>
-        </TouchableOpacity>
+            <Text style={styles.copOrNotText}>Cop</Text>
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity style={{flex: 1}} onPress={handlePress}>
-          <View style={styles.not}>
+        {isNotVisible && ( // Conditionally render the "Not" button
+          <TouchableOpacity
+            style={[styles.not, isNotPressed && styles.notPressed]}
+            onPress={handleNotPress}
+            disabled={isNotPressed}
+          >
             <View style={styles.whiteStripe} />
-            <CText style={styles.copOrNotText}>Not</CText>
-          </View>
-        </TouchableOpacity>
+            <Text style={styles.copOrNotText}>Not</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Logs Section */}
@@ -91,7 +84,12 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 48,
   },
-
+  copPressed:{
+    backgroundColor: 'grey',
+  },
+  notPressed:{
+    backgroundColor: 'grey',
+  },
   whiteStripe:{
     position: 'absolute',
     top: 50,
