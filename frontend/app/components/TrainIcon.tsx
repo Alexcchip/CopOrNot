@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 
 import OneTrain from './trains/OneTrain';
 import TwoTrain from './trains/TwoTrain';
@@ -62,8 +63,17 @@ const trainComponents = {
 const TrainIcon: React.FC<{ trainLine: TrainLine}> = ({trainLine}) => {
     const TrainComponent = trainComponents[trainLine];
     return(
-        <TrainComponent />
+        <View style={styles.iconContainer}>
+            <TrainComponent />
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    iconContainer: {
+        margin: 5,
+        padding: 0,
+    }
+})
 
 export default TrainIcon

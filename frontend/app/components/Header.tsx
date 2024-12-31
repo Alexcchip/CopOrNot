@@ -12,7 +12,13 @@ type Station = {
     station: string;
     trains: string | number;
     _id: string;
-  };
+};
+
+type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
+                 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' |
+                 'J' | 'L' | 'M' | 'N' | 'Q' | 'R' | 'S' | 'W' | 'Z' |
+                 'SIR';
+
 
 export default function Header() {
     const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
@@ -54,14 +60,28 @@ export default function Header() {
         flex: 1,
         alignItems: 'center',
         backgroundColor: '#261C2E',
+      },
+      trainIconsContainer:{
+        flexDirection: "row",
       }
     });
     console.log(closestStation?.station + " " + closestStation?.trains)
+    console.log('Trains:', closestStation?.trains);
     return (
     
         <View style={styles.headerContainer}>
           <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>{closestStation?.station}          <TrainIcon trainLine="L" /></CText>
+          <CText style={styles.headerText}>{closestStation?.station}</CText>
+          <View style={styles.trainIconsContainer}>
+            {closestStation?.trains &&
+              typeof closestStation.trains === 'string' &&
+              closestStation.trains.split(' ').map((trainLine, index) =>{
+                const trimmedTrainLine = trainLine?.trim();
+                return trimmedTrainLine ? <TrainIcon key={index} trainLine={trimmedTrainLine} /> : null;
+              }
+              )
+            }
+          </View>
           <StatusBar translucent backgroundColor="transparent" />
         </View>
     );
