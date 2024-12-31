@@ -7,12 +7,16 @@ import { useStations } from '../context/StationContext';
 export default function MapScreen() {
   const { location } = useLocation();
   const { stations, error } = useStations();
-  console.log(stations)
+  console.log(stations[0])
   return (
     <View style={styles.container}>
       <MapView
         key={JSON.stringify(stations)}
+        mapType='mutedStandard'
+        showsUserLocation={true}
         style={styles.map}
+        showsMyLocationButton={true}
+        showsPointsOfInterest={false}
         initialRegion={{
           latitude: location ? location.coords.latitude : 40.7128,
           longitude: location ? location.coords.longitude : -74.0060,
@@ -31,7 +35,7 @@ export default function MapScreen() {
             description={`Trains: ${station.trains}`}
           />
         ))}
-        {location && (
+        {/* {location && (
           <Marker
             coordinate={{
               latitude: location.coords.latitude,
@@ -40,7 +44,7 @@ export default function MapScreen() {
             title="You are here"
             pinColor="blue"
           />
-        )}
+        )} */}
       </MapView>
       {error && <Text style={{ color: 'red' }}>Error: {error}</Text>}
     </View>
