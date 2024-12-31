@@ -6,11 +6,11 @@ import { useLocation } from '../context/LocationContext';
 import TestIcon from '../components/TestIcon'
 import Header from '../components/Header'
 import Log from '../components/Log'
-import LogBunch from '../components/LogBunch'
+import LogPreview from '../components/LogPreview'
 
 const sampleLogs = [
   {timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true},
-  {timestamp: '12:43pm', entrance: 'Side Entrance', copOrNot: false},
+  {timestamp: '12:40pm', entrance: 'Side Entrance', copOrNot: false},
   {timestamp: '12:33pm', entrance: 'Main Entrance', copOrNot: true},
   {timestamp: '12:05pm', entrance: 'Main Entrance', copOrNot: true},
   {timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false},
@@ -45,6 +45,11 @@ const App = () => {
           >
             <View style={styles.whiteStripe} />
             <CText style={styles.copOrNotText}>Cop</CText>
+            {isCopPressed && (
+              <CText style={styles.underText} fontType="regular italic">
+                rip bro, it be like that sometimes
+              </CText>
+            )}
           </TouchableOpacity>
         )}
 
@@ -56,13 +61,18 @@ const App = () => {
           >
             <View style={styles.whiteStripe} />
             <CText style={styles.copOrNotText}>Not</CText>
+            {isNotPressed && (
+              <CText style={styles.underText} fontType="regular italic">
+                lets fucking go
+              </CText>
+            )}
           </TouchableOpacity>
         )}
       </View>
 
       {/* Logs Section */}
       <View style={styles.logsContainer}>
-        <LogBunch logs={sampleLogs} />
+        <LogPreview logs={sampleLogs} />
       </View>
     </View>
   );
@@ -137,8 +147,13 @@ const styles = StyleSheet.create({
     marginLeft: '5%',
   },
   copOrNotText: {
-    fontSize: 48,
+    fontSize: 68,
     color: 'white',
+    textAlign: 'center',
+  },
+  underText:{
+    fontSize: 16,
+    color: 'lightgrey',
     textAlign: 'center',
   },
   logsContainer: {

@@ -3,8 +3,8 @@ import CText from '../components/CText'
 
 import { useStations } from '../context/StationContext'; 
 import { useLocation } from '../context/LocationContext';
-import TestIcon from '../components/TestIcon'
 import {View, StyleSheet, StatusBar} from 'react-native'
+import TrainIcon from '../components/TrainIcon'
 
 type Station = {
     lat: number;
@@ -61,7 +61,7 @@ export default function Header() {
     
         <View style={styles.headerContainer}>
           <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>{closestStation?.station}          <TestIcon width={50} height={50} /></CText>
+          <CText style={styles.headerText}>{closestStation?.station}          <TrainIcon trainLine="F" /></CText>
           <StatusBar translucent backgroundColor="transparent" />
           
         </View>

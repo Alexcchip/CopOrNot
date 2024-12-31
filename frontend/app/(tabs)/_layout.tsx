@@ -52,7 +52,7 @@ export default function TabLayout() {
         name="index"
         options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="home" size={size} color={color} />
+            <FontAwesome name="home" size={size * 1.25} color={color} />
           ),
           // Individual tab styling (optional)
           tabBarItemStyle: {
