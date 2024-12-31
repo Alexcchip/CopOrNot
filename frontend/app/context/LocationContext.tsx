@@ -13,6 +13,11 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     const fetchLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
+      }
       const currentLocation = await Location.getCurrentPositionAsync({});
       setLocation(currentLocation);
     };

@@ -36,7 +36,7 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await fetch('http://10.120.8.209:5000/api/stations');
+        const response = await fetch('http://192.168.162.125:5000/api/stations');
         const rawData = await response.json();
 
         // Use the cleanStationData function to clean the raw data

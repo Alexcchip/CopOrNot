@@ -61,9 +61,8 @@ export default function Header() {
     
         <View style={styles.headerContainer}>
           <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>{closestStation?.station}          <TrainIcon trainLine="F" /></CText>
+          <CText style={styles.headerText}>{closestStation?.station}          <TrainIcon trainLine="L" /></CText>
           <StatusBar translucent backgroundColor="transparent" />
-          
         </View>
     );
     
