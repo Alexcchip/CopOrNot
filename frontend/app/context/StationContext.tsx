@@ -1,18 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as Network from 'expo-network';
 
-const getLocalIPAddress = async () => {
-  try {
-    const networkState = await Network.getNetworkStateAsync();
-    if (networkState.isConnected && networkState.type === 'WIFI' && networkState.ipAddress) {
-      return networkState.ipAddress; // Returns a valid local IP (e.g., 192.168.x.x)
-    }
-    throw new Error('Unable to determine the local IP address');
-  } catch (error) {
-    console.error('Error fetching IP address:', error);
-    return null;
-  }
-};
+// const getLocalIPAddress = async () => {
+//   try {
+//     const networkState = await Network.getNetworkStateAsync();
+//     if (networkState.isConnected && networkState.type === 'WIFI' && networkState.ipAddress) {
+//       return networkState.ipAddress; // Returns a valid local IP (e.g., 192.168.x.x)
+//     }
+//     throw new Error('Unable to determine the local IP address');
+//   } catch (error) {
+//     console.error('Error fetching IP address:', error);
+//     return null;
+//   }
+// };
 
 // Define the Station type
 type Station = {
@@ -50,8 +50,8 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const ipAddress = await getLocalIPAddress();
-        const apiUrl = `http://${ipAddress}:5000/api/stations`;
+        const ipAddress = await Network.getIpAddressAsync();
+        const apiUrl = `https://copornot.onrender.com/api/stations`;
 
         const response = await fetch(apiUrl);
         const rawData = await response.json();
@@ -68,6 +68,7 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const getClosestStation = (userLat: number, userLon: number) => {
+    //console.log('Stations:', stations);
     if (stations.length === 0) return { closestStation: null, shortestDistance: Infinity };
 
     const toRadians = (deg: number) => (deg * Math.PI) / 180;
@@ -93,7 +94,7 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
         closestStation = station;
       }
     });
-
+    //console.log('Closest station found:', closestStation);
     return { closestStation, shortestDistance };
   };
 

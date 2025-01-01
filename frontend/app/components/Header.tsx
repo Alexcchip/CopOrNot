@@ -65,8 +65,8 @@ export default function Header() {
         flexDirection: "row",
       }
     });
-    console.log(closestStation?.station + " " + closestStation?.trains)
-    console.log('Trains:', closestStation?.trains);
+    //console.log(closestStation?.station + " " + closestStation?.trains)
+    //console.log('Trains:', closestStation?.trains);
     return (
     
         <View style={styles.headerContainer}>
