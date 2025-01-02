@@ -67,7 +67,7 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
     fetchStations();
   }, []);
 
-  const getClosestStation = (userLat: number, userLon: number) => {
+  const getClosestStation = (userLat: number, userLon: number): { closestStation: Station | null; shortestDistance: number } => {
     //console.log('Stations:', stations);
     if (stations.length === 0) return { closestStation: null, shortestDistance: Infinity };
 

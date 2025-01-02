@@ -1,75 +1,186 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import CText from '../components/CText'
-import { useStations } from '../context/StationContext'; 
+import CText from '../components/CText';
+import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext';
-import TestIcon from '../components/TestIcon'
-import Header from '../components/Header'
-import Log from '../components/Log'
-import LogPreview from '../components/LogPreview'
+import Header from '../components/Header';
+import LogPreview from '../components/LogPreview';
+import axios from 'axios';
 
 const sampleLogs = [
-  {timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true},
-  {timestamp: '12:40pm', entrance: 'Side Entrance', copOrNot: false},
-  {timestamp: '12:33pm', entrance: 'Main Entrance', copOrNot: true},
-  {timestamp: '12:05pm', entrance: 'Main Entrance', copOrNot: true},
-  {timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false},
+  { timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true },
+  { timestamp: '12:40pm', entrance: 'Side Entrance', copOrNot: false },
+  { timestamp: '12:33pm', entrance: 'Main Entrance', copOrNot: true },
+  { timestamp: '12:05pm', entrance: 'Main Entrance', copOrNot: true },
+  { timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false },
 ];
 
+interface Station {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  distance: number; // Distance from the given location
+}
+
 const App = () => {
-  const [isCopPressed, setIsCopPressed] = useState(false); // Track if the button was pressed
-  const [isNotPressed, setIsNotPressed] = useState(false); // Track if the button was pressed
-  const handleCopPress = () => {
-    setIsCopPressed(true);
-    setIsNotVisible(false);
-  };
-  const handleNotPress = () => {
-    setIsNotPressed(true);
-    setIsCopVisible(false);
+ const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
+     const { location } = useLocation(); // Access the user's location
+     const [closestStation, setClosestStation] = useState<string | undefined>(undefined); // Explicitly define the type
+     const [isLoading, setIsLoading] = useState(true);
+  const [buttonState, setButtonState] = useState({
+    isCopVisible: true,
+    isNotVisible: true,
+    isCopPressed: false,
+    isNotPressed: false,
+  });
+
+  // Determine the closest station
+      
+      // Find the closest station when the location changes
+      useEffect(() => {
+        async function fetchClosestStation(){
+          if (location && stations.length > 0) {
+            setIsLoading(true);
+            const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+            setClosestStation(closestStation?.station)
+            setIsLoading(false);
+          }
+        }
+  
+        fetchClosestStation();
+      }, [location, stations]);
+      console.log(closestStation)
+  // Function to post data
+  const postData = async (copStatus: boolean, station: string| undefined, timeStamp: Date) => {
+    if (!station) {
+      Alert.alert('Error', 'No station data available.');
+      return;
+    }
+
+    const body = {
+      cop: copStatus,
+      station: station,
+      timeStamp: timeStamp.toISOString(),
+    };
+
+    try {
+      const response = await axios.post('https://copornot.onrender.com/api/post', body);
+      Alert.alert('Success', 'Data saved successfully!');
+      console.log('Data saved:', response.data);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save data.');
+      console.error('Error saving data:', error.response ? error.response.data : error.message);
+    }
   };
 
-  const [isCopVisible, setIsCopVisible] = useState(true); // Track component visibility
-  const [isNotVisible, setIsNotVisible] = useState(true); // Track component visibility
+  // Handlers for button presses
+  const handleCopPress = () => {
+    postData(true, closestStation, new Date());
+    setButtonState({ ...buttonState, isCopPressed: true, isNotVisible: false });
+  };
+
+  const handleNotPress = () => {
+    postData(false, closestStation, new Date());
+    setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
+  };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: '#261C2E',
+    },
+    copOrNotContainer: {
+      position: 'relative',
+      flex: 3,
+      width: '90%',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      flexDirection: 'row',
+      marginBottom: '2.5%',
+      backgroundColor: 'transparent',
+    },
+    buttonBase: {
+      flex: 1,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      marginHorizontal: '2.5%',
+    },
+    cop: {
+      backgroundColor: '#ED4D4D',
+    },
+    not: {
+      backgroundColor: '#6DC35E',
+    },
+    pressed: {
+      backgroundColor: 'grey',
+    },
+    copOrNotText: {
+      fontSize: 68,
+      color: 'white',
+      textAlign: 'center',
+    },
+    underText: {
+      fontSize: 16,
+      color: 'lightgrey',
+      textAlign: 'center',
+    },
+    logsContainer: {
+      flex: 4,
+      width: '90%',
+      borderRadius: 10,
+      marginVertical: '5%',
+      backgroundColor: '#191521',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
 
   return (
     <View style={styles.container}>
       <Header />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
-
-        {isCopVisible && ( // Conditionally render the "Cop" button
+        {buttonState.isCopVisible && (
           <TouchableOpacity
-            style={[styles.cop, isCopPressed && styles.copPressed]}
+            style={[
+              styles.buttonBase,
+              styles.cop,
+              buttonState.isCopPressed && styles.pressed,
+            ]}
             onPress={handleCopPress}
-            disabled={isCopPressed}
+            disabled={buttonState.isCopPressed}
           >
-            <View style={styles.whiteStripe} />
             <CText style={styles.copOrNotText}>Cop</CText>
-            {isCopPressed && (
+            {buttonState.isCopPressed && (
               <CText style={styles.underText} fontType="regular italic">
-                rip bro, it be like that sometimes
+                Rip bro, it be like that sometimes.
               </CText>
             )}
           </TouchableOpacity>
         )}
-
-        {isNotVisible && ( // Conditionally render the "Not" button
+        {buttonState.isNotVisible && (
           <TouchableOpacity
-            style={[styles.not, isNotPressed && styles.notPressed]}
+            style={[
+              styles.buttonBase,
+              styles.not,
+              buttonState.isNotPressed && styles.pressed,
+            ]}
             onPress={handleNotPress}
-            disabled={isNotPressed}
+            disabled={buttonState.isNotPressed}
           >
-            <View style={styles.whiteStripe} />
             <CText style={styles.copOrNotText}>Not</CText>
-            {isNotPressed && (
+            {buttonState.isNotPressed && (
               <CText style={styles.underText} fontType="regular italic">
-                lets fucking go
+                Let’s go!
               </CText>
             )}
           </TouchableOpacity>
         )}
       </View>
-
       {/* Logs Section */}
       <View style={styles.logsContainer}>
         <LogPreview logs={sampleLogs} />
@@ -77,98 +188,5 @@ const App = () => {
     </View>
   );
 };
-
-// Base Style for Consistency
-const baseViewStyle = {
-  
-  position: 'relative',
-  borderRadius: 10,
-  width: '90%',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'white',
-};
-
-// StyleSheet
-const styles = StyleSheet.create({
-  headerContainer: {
-    width: '100%',
-    backgroundColor: "black",
-    paddingTop: 50,
-    paddingBottom: 30,
-    paddingLeft: 0,
-    paddingRight: 0,
-    alignItems: "center",
-  },
-  headerText: {
-    paddingTop: 10,
-    color: "white",
-    fontSize: 48,
-  },
-  copPressed:{
-    backgroundColor: 'grey',
-  },
-  notPressed:{
-    backgroundColor: 'grey',
-  },
-  whiteStripe:{
-    position: 'absolute',
-    top: 50,
-    width: '100%',
-    height: 5,
-    backgroundColor: 'white',
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#261C2E',
-  },
-  copOrNotContainer: {
-    ...baseViewStyle,
-    flex: 3,
-    paddingTop: '5%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: '2.5%',
-    backgroundColor: 'transparent', // Override background for parent container
-  },
-  cop: {
-    ...baseViewStyle,
-    flex: 1,
-    backgroundColor: '#ED4D4D',
-    height: '100%',
-    marginRight: '5%',
-  },
-  not: {
-    flex: 1,
-    ...baseViewStyle,
-    backgroundColor: '#6DC35E',
-    height: '100%',
-    marginLeft: '5%',
-  },
-  copOrNotText: {
-    fontSize: 68,
-    color: 'white',
-    textAlign: 'center',
-  },
-  underText:{
-    fontSize: 16,
-    color: 'lightgrey',
-    textAlign: 'center',
-  },
-  logsContainer: {
-    ...baseViewStyle,
-    flex: 4,
-    marginTop: '2.5%',
-    marginBottom: '5%',
-    backgroundColor: '#191521',
-  },
-  logsText: {
-    fontSize: 56,
-    color: 'white',
-  },
-});
-
-
 
 export default App;
