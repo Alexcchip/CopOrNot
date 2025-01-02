@@ -27,11 +27,12 @@ import WTrain from './trains/WTrain';
 import ZTrain from './trains/ZTrain';
 
 import NJTransit from './trains/NJTransit';
+import TRAM from './trains/Tram';
 
 type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
                  'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' |
                  'J' | 'L' | 'M' | 'N' | 'Q' | 'R' | 'S' | 'W' | 'Z' |
-                 'SIR';
+                 'SIR' | 'TRAM1' | 'TRAM2';
 
 const trainComponents = {
     1: OneTrain,
@@ -57,14 +58,28 @@ const trainComponents = {
     S: STrain,
     W: WTrain,
     Z: ZTrain,
-    SIR: NJTransit
+    SIR: NJTransit,
+    TRAM1: TRAM,
+    TRAM2: TRAM
 };
 
-const TrainIcon: React.FC<{ trainLine: TrainLine}> = ({trainLine}) => {
+const TrainIcon: React.FC<{ trainLine: TrainLine; height?: number; width?: number}> = ({trainLine, height = 50, width = 50}) => {
+
+    if (!trainLine) {
+        console.warn('Invalid trainLine passed to TrainIcon:', trainLine);
+        return null; // Don't render if trainLine is invalid
+    }
+
     const TrainComponent = trainComponents[trainLine];
+
+    if (!TrainComponent) {
+        console.warn('No TrainComponent found for:', trainLine);
+        return null; // Fallback for invalid trainLine
+    }
+
     return(
         <View style={styles.iconContainer}>
-            <TrainComponent />
+            <TrainComponent height={height} width={width}/>
         </View>
     );
 };
@@ -72,6 +87,7 @@ const TrainIcon: React.FC<{ trainLine: TrainLine}> = ({trainLine}) => {
 const styles = StyleSheet.create({
     iconContainer: {
         margin: 5,
+        marginHorizontal: 2.5,
         padding: 0,
     }
 })

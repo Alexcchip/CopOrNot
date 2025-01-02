@@ -1,35 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react'
+import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, ScrollView, TextInput } from 'react-native'
 import CText from '../components/CText'
-import { useStations } from '../context/StationContext'; 
-import { useLocation } from '../context/LocationContext';
+import { useStations } from '../context/StationContext'
+import { useLocation } from '../context/LocationContext'
 import TestIcon from '../components/TestIcon'
 import Header from '../components/Header'
 import Log from '../components/Log'
-import LogPreview from '../components/LogPreview'
+import PreviewBox from '../components/PreviewBox'
 
-const sampleLogs = [
-  {timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true},
-  {timestamp: '12:40pm', entrance: 'Side Entrance', copOrNot: false},
-  {timestamp: '12:33pm', entrance: 'Main Entrance', copOrNot: true},
-  {timestamp: '12:05pm', entrance: 'Main Entrance', copOrNot: true},
-  {timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false},
-];
+type Station = {
+  _id: string;
+  lat: number;
+  lon: number;
+  station: string;
+  trains: string | number;
+};
 
 const Stats = () => {
+  const {stations} = useStations();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredStations = stations.filter((station) =>
+    station.station.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (stations.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Header />
+        <View style={styles.loadingContainer}>
+          <CText style={styles.loadingText}>Loading stations...</CText>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
         <Header />
+
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search stations..."
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={(text) => setSearchQuery(text)}
+          />
+        </View>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-            {/* Logs Section */}
-            <View style={styles.logsContainer}>
-                <LogPreview logs={sampleLogs} />
-            </View>
-            <View style={styles.logsContainer}>
-                <LogPreview logs={sampleLogs} />
-            </View>
-            <View style={styles.logsContainer}>
-                <LogPreview logs={sampleLogs} />
+            <View style={styles.previewContainer}>
+              {filteredStations.map((station) => (
+                <PreviewBox
+                  key={station._id}
+                  title={station.station}
+                  trainLines={station.trains}
+                  data={{
+                    Latitude: station.lat,
+                    Longitude: station.lon,
+                  }}
+                />
+              ))}
             </View>
         </ScrollView>
     </View>
@@ -38,7 +70,6 @@ const Stats = () => {
 
 // Base Style for Consistency
 const baseViewStyle = {
-  
   position: 'relative',
   borderRadius: 10,
   width: '90%',
@@ -49,19 +80,45 @@ const baseViewStyle = {
 
 // StyleSheet
 const styles = StyleSheet.create({
-  headerContainer: {
-    width: '100%',
-    backgroundColor: "black",
-    paddingTop: 50,
-    paddingBottom: 30,
-    paddingLeft: 0,
-    paddingRight: 0,
-    alignItems: "center",
+  searchContainer: {
+    margin: 10,
+    marginBottom: 0,
+    marginTop: 15,
+    paddingHorizontal: 10,
+    
   },
-  headerText: {
-    paddingTop: 10,
-    color: "white",
-    fontSize: 48,
+  searchInput: {
+    height: 60,
+    //borderColor: '#444',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    color: 'white',
+    backgroundColor: '#333',
+    fontSize: 24,
+  },
+  textInput: {
+    flex: 1,
+    height: '100%',
+    paddingHorizontal: 15, // Add more padding for better appearance
+    //fontSize: 36, // Increase font size for larger text
+    color: 'white',
+  },
+  placeholderText: {
+    position: 'absolute',
+    left: 15, // Match padding of text input
+    top: 18, // Adjust for larger height
+    fontSize: 24, // Match font size of text input
+    color: '#999',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'white',
+    fontSize: 18,
   },
   whiteStripe:{
     position: 'absolute',
@@ -77,22 +134,16 @@ const styles = StyleSheet.create({
   scrollContent: {
     alignSelf: 'center',
     padding: 20, // Add padding for a better scroll experience
+    paddingTop: 10,
     width: '100%',
   },
-  logsContainer: {
-    ...baseViewStyle,
+  previewContainer: {
+    alignItems: 'center',
     flex: 4,
-    marginTop: '2.5%',
+    marginTop: 0,
     marginBottom: '5%',
-    backgroundColor: '#191521',
     width: '100%',
-  },
-  logsText: {
-    fontSize: 56,
-    color: 'white',
   },
 });
-
-
 
 export default Stats;

@@ -17,7 +17,7 @@ type Station = {
 type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
                  'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' |
                  'J' | 'L' | 'M' | 'N' | 'Q' | 'R' | 'S' | 'W' | 'Z' |
-                 'SIR';
+                 'SIR' | 'TRAM1' | 'TRAM2';
 
 
 export default function Header() {
@@ -63,7 +63,7 @@ export default function Header() {
         position: 'absolute',
         top: 50,
         width: '100%',
-        height: 5,
+        height: 2.5,
         backgroundColor: 'white',
       },
       container: {
@@ -73,8 +73,11 @@ export default function Header() {
       },
       trainIconsContainer:{
         flex: 1,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         margin: 0,
         padding: 0,
+        justifyContent: 'center',
       }
     });
 
