@@ -22,19 +22,27 @@ type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
 
 export default function Header() {
     const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
-        const { location } = useLocation(); // Access the user's location
-        const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
-        const [flexValue, setFlexValue] = useState(1);
-        // Find the closest station when the location changes
-        useEffect(() => {
-          if (location) {
-            const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
-            setClosestStation(closestStation);
-          }
-        }, [location, stations]); // Recalculate if location or stations change
+    const { location } = useLocation(); // Access the user's location
+    const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
+    const [isLoading, setIsLoading] = useState(true);
+    
+    // Find the closest station when the location changes
+    useEffect(() => {
+      async function fetchClosestStation(){
+        if (location && stations.length > 0) {
+          setIsLoading(true);
+          const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+          setClosestStation(closestStation);
+          setIsLoading(false);
+        }
+      }
+
+      fetchClosestStation();
+    }, [location, stations]); // Recalculate if location or stations change
 
     const styles = StyleSheet.create({
       headerContainer: {
+        flexDirection: 'row',
         width: '100%',
         backgroundColor: "black",
         paddingTop: 50,
@@ -44,11 +52,13 @@ export default function Header() {
         alignItems: "center",
       },
       headerText: {
+        flex: 2,
+        width: '100%',
         paddingTop: 10,
+        paddingLeft: 10,
         color: "white",
         fontSize: 48,
       },
-    
       whiteStripe:{
         position: 'absolute',
         top: 50,
@@ -62,25 +72,42 @@ export default function Header() {
         backgroundColor: '#261C2E',
       },
       trainIconsContainer:{
-        flexDirection: "row",
+        flex: 1,
+        margin: 0,
+        padding: 0,
       }
     });
-    //console.log(closestStation?.station + " " + closestStation?.trains)
-    //console.log('Trains:', closestStation?.trains);
+
+    if (isLoading){
+      return (
+        <View style={styles.headerContainer}>
+          <View style={styles.whiteStripe} />
+          <CText style={styles.headerText}>Loading...</CText>
+          <View style={styles.trainIconsContainer}>
+            <TrainIcon trainLine='SIR' />
+          </View>
+          <StatusBar translucent backgroundColor="transparent" />
+        </View>
+      );
+    }
+
+    const trainLines =
+      closestStation?.trains
+        ? typeof closestStation.trains === 'string'
+          ? closestStation.trains.split(' ').map((line) => line.trim())
+          : [closestStation.trains.toString()] // Handle numerical trains
+        : ['SIR']; // Fallback for missing trains
+
+
     return (
     
         <View style={styles.headerContainer}>
           <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>{closestStation?.station}</CText>
+          <CText style={styles.headerText}>{closestStation?.station || 'Where the fuck are you??'}</CText>
           <View style={styles.trainIconsContainer}>
-            {closestStation?.trains &&
-              typeof closestStation.trains === 'string' &&
-              closestStation.trains.split(' ').map((trainLine, index) =>{
-                const trimmedTrainLine = trainLine?.trim();
-                return trimmedTrainLine ? <TrainIcon key={index} trainLine={trimmedTrainLine} /> : null;
-              }
-              )
-            }
+            {trainLines.map((trainLine, index) => (
+              <TrainIcon key={index} trainLine={trainLine} />
+            ))}
           </View>
           <StatusBar translucent backgroundColor="transparent" />
         </View>
