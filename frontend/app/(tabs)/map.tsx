@@ -12,7 +12,6 @@ export default function MapScreen() {
     <View style={styles.container}>
       <MapView
         key={JSON.stringify(stations)}
-        //mapType='mutedStandard'
         showsUserLocation={true}
         style={styles.map}
         showsMyLocationButton={true}
