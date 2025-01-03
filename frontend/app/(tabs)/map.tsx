@@ -81,7 +81,7 @@ export default function MapScreen() {
             // title={station.station}
             // description={`Trains: ${station.trains}`}
             image={require('../../assets/images/stationRegular.png')}
-            onPress={() => handleSelect(station)}
+            onPress={() => setTimeout(() => handleSelect(station), 0)}
           >
           </Marker>
         ))}
