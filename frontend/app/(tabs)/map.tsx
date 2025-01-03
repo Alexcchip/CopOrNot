@@ -88,14 +88,12 @@ export default function MapScreen() {
       </MapView>
       {error && <Text style={{ color: 'red' }}>Error: {error}</Text>}
       {selectedStation && (
-        <View style={styles.wagwancontainer}>
-          <View style={styles.logsContainer}>
-            <LogPreview
-                //station={selectedStation}
-                logs={sampleLogs}
-                onClose={handleDeselect}
-              />
-          </View>
+        <View style={styles.wagwanContainer}>
+          <LogPreview
+              //station={selectedStation}
+              logs={sampleLogs}
+              onClose={handleDeselect}
+            />
         </View>
           
       )}
@@ -106,23 +104,23 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'transparent',
+    elevation: 1,
   },
   map: {
     flex: 1,
   },
-  logsContainer: {
-    flex: 4,
+  wagwanContainer: {
+    position: 'absolute', // Place it above the map
+    bottom: 20, // Adjust position from the bottom
     width: '90%',
     borderRadius: 10,
     marginVertical: '5%',
     backgroundColor: '#191521',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  wagwancontainer: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0)',
+    alignSelf: 'center', // Center horizontally
+    padding: 10,
   },
 });
 
