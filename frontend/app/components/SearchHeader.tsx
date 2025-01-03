@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react'
 import CText from '../components/CText'
-
 import { useStations } from '../context/StationContext'; 
 import { useLocation } from '../context/LocationContext';
 import {View, StyleSheet, StatusBar} from 'react-native'
@@ -20,7 +19,7 @@ type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
                  'SIR' | 'TRAM1' | 'TRAM2';
 
 
-export default function Header() {
+export default function SearchHeader() {
     const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
     const { location } = useLocation(); // Access the user's location
     const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
@@ -118,7 +117,7 @@ export default function Header() {
     
         <View style={styles.headerContainer}>
           <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>{closestStation?.station || 'Where the fuck are you??'}</CText>
+          <CText style={styles.headerText}>{closestStation?.station || 'Where the fuck are you??'}, r: {count}</CText>
           <View style={styles.trainIconsContainer}>
             {trainLines.map((trainLine, index) => (
               <TrainIcon key={index} trainLine={trainLine} />
