@@ -25,6 +25,7 @@ export default function Header() {
     const { location } = useLocation(); // Access the user's location
     const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
     const [isLoading, setIsLoading] = useState(true);
+    const [count, setCount] = useState(0);
     
     // Find the closest station when the location changes
     useEffect(() => {
@@ -39,6 +40,17 @@ export default function Header() {
 
       fetchClosestStation();
     }, [location, stations]); // Recalculate if location or stations change
+
+    //this state is used to rerender component every 5 secs
+    //so that if user location changes itll update
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCount(prevCount => prevCount + 1); //updating state to trigger rerender
+      }, 5000); //update every 5 secs
+  
+      //cleanup interval for mem mgmt
+      return () => clearInterval(interval);
+    }, []); //empty dependency array? not sure why but chat said said so
 
     const styles = StyleSheet.create({
       headerContainer: {
@@ -106,7 +118,7 @@ export default function Header() {
     
         <View style={styles.headerContainer}>
           <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>{closestStation?.station || 'Where the fuck are you??'}</CText>
+          <CText style={styles.headerText}>{closestStation?.station || 'Where the fuck are you??'}, r: {count}</CText>
           <View style={styles.trainIconsContainer}>
             {trainLines.map((trainLine, index) => (
               <TrainIcon key={index} trainLine={trainLine} />
