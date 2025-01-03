@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
       padding: 10,
       margin: 10,
       borderRadius: 10,
-      backgroundColor: '#000',
+      backgroundColor: '#191521',
     },
     title: {
       flexDirection: 'row',

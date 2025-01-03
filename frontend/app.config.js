@@ -22,7 +22,7 @@ export default {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
-      bundleIdentifier: "com.copo.rnot",
+      //bundleIdentifier: "com.copo.rnot",
       config: {
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       },

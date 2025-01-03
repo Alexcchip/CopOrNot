@@ -3,14 +3,12 @@ import { View, StyleSheet, Text, useColorScheme } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useLocation } from '../context/LocationContext';
 import { useStations } from '../context/StationContext';
-import LogPreview from '../components/LogPreview'
+import PreviewBox from '../components/PreviewBox';
 
 const sampleLogs = [
-  { timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true },
-  { timestamp: '12:40pm', entrance: 'Side Entrance', copOrNot: false },
-  { timestamp: '12:33pm', entrance: 'Main Entrance', copOrNot: true },
-  { timestamp: '12:05pm', entrance: 'Main Entrance', copOrNot: true },
-  { timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false },
+  { key: '12:41pm', value: 'Main Entrance (Cop)' },
+  { key: '12:40pm', value: 'Side Entrance (No Cop)' },
+  { key: '12:33pm', value: 'Main Entrance (Cop)' },
 ];
 
 const lightModeStyle = [];
@@ -60,8 +58,10 @@ export default function MapScreen() {
         key={JSON.stringify(stations)}
         showsUserLocation={true}
         style={styles.map}
-        showsMyLocationButton={true}
+        showsMyLocationButton={false}
         showsPointsOfInterest={false}
+        showsCompass={false}
+        toolbarEnabled={false}
         customMapStyle={colorScheme === 'dark' ? darkModeStyle : lightModeStyle}
         initialRegion={{
           latitude: location ? location.coords.latitude : 40.7128,
@@ -89,10 +89,10 @@ export default function MapScreen() {
       {error && <Text style={{ color: 'red' }}>Error: {error}</Text>}
       {selectedStation && (
         <View style={styles.wagwanContainer}>
-          <LogPreview
-              //station={selectedStation}
-              logs={sampleLogs}
-              onClose={handleDeselect}
+          <PreviewBox
+            title={selectedStation.station}
+            trainLines={selectedStation.trains}
+            data={Object.fromEntries(sampleLogs.map((log) => [log.key, log.value]))}
             />
         </View>
           
@@ -106,21 +106,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     elevation: 1,
+    padding: 0,
+    margin: 0,
   },
   map: {
     flex: 1,
   },
   wagwanContainer: {
     position: 'absolute', // Place it above the map
-    bottom: 20, // Adjust position from the bottom
+    bottom: 30, // Adjust position from the bottom
     width: '90%',
     borderRadius: 10,
-    marginVertical: '5%',
     backgroundColor: '#191521',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center', // Center horizontally
-    padding: 10,
+    padding: 0,
   },
 });
 
