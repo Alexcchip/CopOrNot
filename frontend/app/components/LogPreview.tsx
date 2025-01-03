@@ -9,9 +9,10 @@ type LogPreviewProps = {
         entrance: string;
         copOrNot: boolean;
     }[];
+    onClose?: () => void;
 }
 
-const LogPreview: React.FC<LogPreviewProps> = ({logs}) => {
+const LogPreview: React.FC<LogPreviewProps> = ({logs, onClose}) => {
   const leftFont = leftText.fontSize * 1.5;
   const rightFont = rightText.fontSize * 1.5;
 

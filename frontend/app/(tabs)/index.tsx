@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { StatusBar, View, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import CText from '../components/CText';
 import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext';
@@ -24,10 +24,10 @@ interface Station {
 }
 
 const App = () => {
- const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
-     const { location } = useLocation(); // Access the user's location
-     const [closestStation, setClosestStation] = useState<string | undefined>(undefined); // Explicitly define the type
-     const [isLoading, setIsLoading] = useState(true);
+  const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
+  const { location } = useLocation(); // Access the user's location
+  const [closestStation, setClosestStation] = useState<string | undefined>(undefined); // Explicitly define the type
+  const [isLoading, setIsLoading] = useState(true);
   const [buttonState, setButtonState] = useState({
     isCopVisible: true,
     isNotVisible: true,
@@ -92,6 +92,7 @@ const App = () => {
       backgroundColor: '#261C2E',
     },
     copOrNotContainer: {
+      paddingTop: 20,
       position: 'relative',
       flex: 3,
       width: '90%',
@@ -137,6 +138,13 @@ const App = () => {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    whiteStripe:{
+      position: 'absolute',
+      top: 50,
+      width: '100%',
+      height: 2.5,
+      backgroundColor: 'white',
+    },
   });
 
   return (
@@ -154,6 +162,7 @@ const App = () => {
             onPress={handleCopPress}
             disabled={buttonState.isCopPressed}
           >
+            <View style={styles.whiteStripe} />
             <CText style={styles.copOrNotText}>Cop</CText>
             {buttonState.isCopPressed && (
               <CText style={styles.underText} fontType="regular italic">
@@ -172,6 +181,7 @@ const App = () => {
             onPress={handleNotPress}
             disabled={buttonState.isNotPressed}
           >
+            <View style={styles.whiteStripe} />
             <CText style={styles.copOrNotText}>Not</CText>
             {buttonState.isNotPressed && (
               <CText style={styles.underText} fontType="regular italic">
@@ -182,9 +192,9 @@ const App = () => {
         )}
       </View>
       {/* Logs Section */}
-      <View style={styles.logsContainer}>
-        <LogPreview logs={sampleLogs} />
-      </View>
+        <View style={styles.logsContainer}>
+          <LogPreview logs={sampleLogs} />
+        </View>
     </View>
   );
 };
