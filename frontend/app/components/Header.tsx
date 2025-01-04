@@ -19,7 +19,8 @@ type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
                  'J' | 'L' | 'M' | 'N' | 'Q' | 'R' | 'S' | 'W' | 'Z' |
                  'SIR' | 'TRAM1' | 'TRAM2';
 
-
+//yo which dumbass put the styles up here :sob:
+//mighta been me tbh
 export default function Header() {
     const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
     const { location } = useLocation(); // Access the user's location
@@ -112,7 +113,6 @@ export default function Header() {
           ? closestStation.trains.split(' ').map((line) => line.trim())
           : [closestStation.trains.toString()] // Handle numerical trains
         : ['SIR']; // Fallback for missing trains
-
 
     return (
     

@@ -1,9 +1,11 @@
-import React, {useState} from 'react';
-import { View, StyleSheet, Text, useColorScheme } from 'react-native';
+import React, {useState, useCallback} from 'react';
+import { View, StyleSheet, Text, useColorScheme, } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useLocation } from '../context/LocationContext';
 import { useStations } from '../context/StationContext';
 import PreviewBox from '../components/PreviewBox';
+import {useFocusEffect} from '@react-navigation/native'
+import CText from '../components/CText'
 
 const sampleLogs = [
   { key: '12:41pm', value: 'Main Entrance (Cop)' },
@@ -38,7 +40,6 @@ const darkModeStyle = [
 ];
 
 export default function MapScreen() {
-  
   const colorScheme = useColorScheme();
   const { location } = useLocation();
   const { stations, error } = useStations();
@@ -52,10 +53,20 @@ export default function MapScreen() {
     setSelectedStation(null);
   }
 
+  useFocusEffect(
+    useCallback(() =>{
+      //console.log('Map in Fuckus');
+
+      return () => {
+        //console.log('map unfuckus');
+        setSelectedStation(null);
+      };
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
       <MapView
-        key={JSON.stringify(stations)}
         showsUserLocation={true}
         style={styles.map}
         showsMyLocationButton={false}

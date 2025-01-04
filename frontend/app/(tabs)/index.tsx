@@ -50,7 +50,6 @@ const App = () => {
   
         fetchClosestStation();
       }, [location, stations]);
-      console.log(closestStation)
   // Function to post data
   const postData = async (copStatus: boolean, station: string| undefined, timeStamp: Date) => {
     if (!station) {
@@ -66,7 +65,7 @@ const App = () => {
 
     try {
       const response = await axios.post('https://copornot.onrender.com/api/post', body);
-      Alert.alert('Success', 'Data saved successfully!');
+      //Alert.alert('Success', 'Data saved successfully!');
       console.log('Data saved:', response.data);
     } catch (error) {
       Alert.alert('Error', 'Failed to save data.');

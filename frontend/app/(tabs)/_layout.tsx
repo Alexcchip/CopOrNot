@@ -3,16 +3,37 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { LocationProvider } from '../context/LocationContext'; // 
-import { StyleSheet } from "react-native";
+import { Keyboard, View, StyleSheet } from "react-native";
 import StationProvider from '../context/StationContext'; // If using default export
+import React, {useEffect, useState} from 'react';
 
 export default function TabLayout() {
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () =>{
+      setKeyboardVisible(true); //hide footer when keybaord is visible
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false); //show footer when keyboard is hidden
+    });
+
+    //clean up listeners
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+
   return (
     <StationProvider>
     <LocationProvider>
     <Tabs
       screenOptions={{
-        tabBarStyle: {
+        tabBarStyle: isKeyboardVisible
+        ? {display: 'none'}
+        : {
           height: 60,
           paddingBottom: 5,
           paddingTop: 5,

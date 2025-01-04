@@ -2,10 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, ScrollView, TextInput } from 'react-native'
 import CText from '../components/CText'
 import { useStations } from '../context/StationContext'
-import { useLocation } from '../context/LocationContext'
-import TestIcon from '../components/TestIcon'
-import Header from '../components/Header'
-import Log from '../components/Log'
+import SearchHeader from '../components/SearchHeader'
 import PreviewBox from '../components/PreviewBox'
 
 type Station = {
@@ -18,16 +15,28 @@ type Station = {
 
 const Stats = () => {
   const {stations} = useStations();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredStations, setFilteredStations] = useState<Station[]>([]);
 
-  const filteredStations = stations.filter((station) =>
-    station.station.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  //handleChange for whenever search query updates
+  const handleChange = (query: string) => {
+    const filtered = stations.filter((station) =>
+      station.station.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredStations(filtered);
+  };
 
+  //initializes empty list as first 25 stations to populate stats page on new load
+  useEffect(() => {
+    if (stations.length > 0){
+      setFilteredStations(stations.slice(0, 25));
+    }
+  }, [stations]);
+
+  //loading screen for when stations is taking a bit, shouldnt ever happen though
   if (stations.length === 0) {
     return (
       <View style={styles.container}>
-        <Header />
+        <SearchHeader onChange={handleChange}/>
         <View style={styles.loadingContainer}>
           <CText style={styles.loadingText}>Loading stations...</CText>
         </View>
@@ -37,18 +46,7 @@ const Stats = () => {
 
   return (
     <View style={styles.container}>
-        <Header />
-
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search stations..."
-            placeholderTextColor="#999"
-            value={searchQuery}
-            onChangeText={(text) => setSearchQuery(text)}
-          />
-        </View>
+        <SearchHeader onChange={handleChange}/>
         <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.previewContainer}>
               {filteredStations.map((station) => (
