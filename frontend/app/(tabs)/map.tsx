@@ -1,11 +1,12 @@
 import React, {useState, useCallback} from 'react';
 import { View, StyleSheet, Text, useColorScheme, } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useLocation } from '../context/LocationContext';
 import { useStations } from '../context/StationContext';
 import PreviewBox from '../components/PreviewBox';
 import {useFocusEffect} from '@react-navigation/native'
 import CText from '../components/CText'
+import stationColors from '../../lineColors.json'
 
 const sampleLogs = [
   { key: '12:41pm', value: 'Main Entrance (Cop)' },
@@ -13,8 +14,18 @@ const sampleLogs = [
   { key: '12:33pm', value: 'Main Entrance (Cop)' },
 ];
 
+const polylines = require('../../polyline.json')
+
+
 const lightModeStyle = [];
 const darkModeStyle = [
+  {
+    "featureType": "all",
+    "elementType": "labels",
+    "stylers": [
+      {"visibility": "off"}
+    ]
+  },
   {
     "elementType": "geometry",
     "stylers": [{ "color": "#212121" }]
@@ -82,6 +93,22 @@ export default function MapScreen() {
         }}
         onPress={handleDeselect}
       >
+        {/* rendering polylines */}
+        {Object.keys(polylines).map((shapeId) =>{
+          const color = stationColors[shapeId] || 'red';
+          console.log('shapeId: ', shapeId, "color: ", color);
+          return(
+          <Polyline
+            key={shapeId}
+            coordinates={polylines[shapeId]}
+            strokeColor={color}
+            strokeWidth={5}
+          />
+          );
+        }
+        )}
+
+        {/*rendering station markers*/}
         {stations.map((station) => (
           <Marker
             key={station._id}

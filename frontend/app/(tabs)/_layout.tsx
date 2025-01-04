@@ -6,11 +6,15 @@ import { LocationProvider } from '../context/LocationContext'; //
 import { Keyboard, View, StyleSheet } from "react-native";
 import StationProvider from '../context/StationContext'; // If using default export
 import React, {useEffect, useState} from 'react';
+import * as NavigationBar from 'expo-navigation-bar';
 
 export default function TabLayout() {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
+    //change nav bar color
+    NavigationBar.setBackgroundColorAsync('#191521');
+
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () =>{
       setKeyboardVisible(true); //hide footer when keybaord is visible
     });

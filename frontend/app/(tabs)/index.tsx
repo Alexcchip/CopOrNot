@@ -15,13 +15,14 @@ const sampleLogs = [
   { timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false },
 ];
 
-interface Station {
-  id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  distance: number; // Distance from the given location
-}
+// unsused currently
+// interface Station {
+//   id: string;
+//   name: string;
+//   latitude: number;
+//   longitude: number;
+//   distance: number; // Distance from the given location
+// }
 
 const App = () => {
   const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
@@ -35,21 +36,19 @@ const App = () => {
     isNotPressed: false,
   });
 
-  // Determine the closest station
-      
-      // Find the closest station when the location changes
-      useEffect(() => {
-        async function fetchClosestStation(){
-          if (location && stations.length > 0) {
-            setIsLoading(true);
-            const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
-            setClosestStation(closestStation?.station)
-            setIsLoading(false);
-          }
-        }
-  
-        fetchClosestStation();
-      }, [location, stations]);
+  // Find the closest station when the location changes
+  useEffect(() => {
+    async function fetchClosestStation(){
+      if (location && stations.length > 0) {
+        setIsLoading(true);
+        const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+        setClosestStation(closestStation?.station)
+        setIsLoading(false);
+      }
+    }
+
+    fetchClosestStation();
+  }, [location, stations]);
   // Function to post data
   const postData = async (copStatus: boolean, station: string| undefined, timeStamp: Date) => {
     if (!station) {
@@ -148,6 +147,11 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar
+      translucent
+      backgroundColor='transparent'
+      barStyle="light-content"
+      />
       <Header />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
