@@ -1,21 +1,24 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import { View, StyleSheet, Text, useColorScheme, } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useLocation } from '../context/LocationContext';
 import { useStations } from '../context/StationContext';
 import PreviewBox from '../components/PreviewBox';
 import {useFocusEffect} from '@react-navigation/native'
-import CText from '../components/CText'
-import stationColors from '../../lineColors.json'
+
+interface Polyline{
+  shapeId: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  }[];
+}
 
 const sampleLogs = [
   { key: '12:41pm', value: 'Main Entrance (Cop)' },
   { key: '12:40pm', value: 'Side Entrance (No Cop)' },
   { key: '12:33pm', value: 'Main Entrance (Cop)' },
 ];
-
-const polylines = require('../../polyline.json')
-
 
 const lightModeStyle = [];
 const darkModeStyle = [
@@ -50,11 +53,59 @@ const darkModeStyle = [
   }
 ];
 
+const getColorByPrefix = (shapeId) => {
+  const prefix = shapeId.slice(0, 2); // Extract the first 2 characters
+  const colorMapping = {
+    "1.": "#ee342e", 
+    "2.": "#ee342e",
+    "3.": "#ee342e", 
+    "4.": "#00933b",
+    "5.": "#00933b",
+    "6.": "#00933b",
+    "7.": "#b933ae",
+    "A.": "#2852ad",
+    "C.": "#2852ad",
+    "E.": "#2852ad",
+    "B.": "#ff6219",
+    "D.": "#ff6219",
+    "F.": "#ff6219",
+    "M.": "#ff6219",
+    "G.": "#6dbe45",
+    "J.": "#996433",
+    "Z.": "#996433",
+    "L.": "#a7a9ac",
+    "N.": "#fccc0a",
+    "Q.": "#fccc0a",
+    "R.": "#fccc0a",
+    "W.": "#fccc0a",
+    "GS": "#808183",
+    "FS": "#808183",
+    "H.": "#808183",
+    "SI": "#0078c6",
+  };
+  return colorMapping[prefix] || "white"; // Default to white if prefix not found
+};
+
 export default function MapScreen() {
   const colorScheme = useColorScheme();
   const { location } = useLocation();
   const { stations, error } = useStations();
   const [selectedStation, setSelectedStation] = useState(null);
+  const [polylines, setPolylines] = useState<Polyline[]>([]);
+
+  //fetching polylines for map building
+  useEffect(() => {
+    const fetchPolylines = async () => {
+      try{
+        const response = await fetch('https://copornot.onrender.com/api/polyline');
+        const data = await response.json();
+        setPolylines(data);
+      } catch (err) {
+        console.error('failed to fetch polylines:', err)
+      }
+    };
+    fetchPolylines();
+  }, []);
 
   const handleSelect = (station) => {
     setSelectedStation(station);
@@ -94,19 +145,19 @@ export default function MapScreen() {
         onPress={handleDeselect}
       >
         {/* rendering polylines */}
-        {Object.keys(polylines).map((shapeId) =>{
-          const color = stationColors[shapeId] || 'red';
-          console.log('shapeId: ', shapeId, "color: ", color);
+        {polylines
+        .filter((polylines) => polylines.shapeId.charAt(3) !== 'S')
+        .map((polylines) => {
+          const color = getColorByPrefix(polylines.shapeId);
           return(
-          <Polyline
-            key={shapeId}
-            coordinates={polylines[shapeId]}
-            strokeColor={color}
-            strokeWidth={5}
-          />
+            <Polyline
+              key={polylines.shapeId}
+              coordinates={polylines.coordinates}
+              strokeColor={color}
+              strokeWidth={5}
+            />
           );
-        }
-        )}
+        })}
 
         {/*rendering station markers*/}
         {stations.map((station) => (
