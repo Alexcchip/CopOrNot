@@ -66,6 +66,17 @@ const getReports = async (req, res) => {
   }
 };
 
+const getBosReports = async (req, res) => {
+  try {
+    const db = getDB();
+    const collection = db.collection('bos_reports');
+    const result = await collection.find().toArray();
+    res.json(result); 
+  } catch (err) {
+    res.status(500).send("Error getting stations");
+  }
+};
+
 const getPolyline = async (req, res) => {
   try {
     const db = getDB();
@@ -77,4 +88,15 @@ const getPolyline = async (req, res) => {
   }
 };
 
-module.exports = { getStations,getData, postData, clearSet, getBosStations, getReports, getPolyline };
+const getBosPolyline = async (req, res) => {
+  try {
+    const db = getDB();
+    const collection = db.collection('bos_polyline');
+    const result = await collection.find().toArray();
+    res.json(result); 
+  } catch (err) {
+    res.status(500).send("Error getting stations");
+  }
+};
+
+module.exports = { getStations,getData, postData, clearSet, getBosStations, getReports, getPolyline, getBosReports, getBosPolyline };
