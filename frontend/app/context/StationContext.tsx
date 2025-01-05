@@ -1,18 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as Network from 'expo-network';
-
-// const getLocalIPAddress = async () => {
-//   try {
-//     const networkState = await Network.getNetworkStateAsync();
-//     if (networkState.isConnected && networkState.type === 'WIFI' && networkState.ipAddress) {
-//       return networkState.ipAddress; // Returns a valid local IP (e.g., 192.168.x.x)
-//     }
-//     throw new Error('Unable to determine the local IP address');
-//   } catch (error) {
-//     console.error('Error fetching IP address:', error);
-//     return null;
-//   }
-// };
+import * as Location from 'expo-location';
 
 // Define the Station type
 type Station = {
@@ -36,7 +23,6 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [stations, setStations] = useState<Station[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Data cleaning logic
   const cleanStationData = (rawData: any[]): Station[] => {
     return rawData.map((item) => ({
       lat: parseFloat(item[" lat"] || item.lat),
@@ -50,15 +36,29 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const ipAddress = await Network.getIpAddressAsync();
-        const apiUrl = `https://copornot.onrender.com/api/stations`;
+        // Request permission for location
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setError('Permission to access location was denied');
+          return;
+        }
+
+        // Get user location
+        const location = await Location.getCurrentPositionAsync({});
+        const { latitude, longitude } = location.coords;
+
+        // Determine the API endpoint based on city
+        const isBoston = latitude >= 42.0 && latitude <= 42.4 && longitude >= -71.2 && longitude <= -70.9;
+        const apiUrl = isBoston
+          ? `https://copornot.onrender.com/api/bos_station`
+          : `https://copornot.onrender.com/api/stations`;
 
         const response = await fetch(apiUrl);
         const rawData = await response.json();
 
-        // Use the cleanStationData function to clean the raw data
+        // Clean and set station data
         const cleanedData = cleanStationData(rawData);
-        setStations(cleanedData); // Set the cleaned data to state
+        setStations(cleanedData);
       } catch (err: any) {
         setError(err.message);
       }
@@ -68,7 +68,6 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const getClosestStation = (userLat: number, userLon: number): { closestStation: Station | null; shortestDistance: number } => {
-    //console.log('Stations:', stations);
     if (stations.length === 0) return { closestStation: null, shortestDistance: Infinity };
 
     const toRadians = (deg: number) => (deg * Math.PI) / 180;
@@ -94,7 +93,7 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
         closestStation = station;
       }
     });
-    //console.log('Closest station found:', closestStation);
+
     return { closestStation, shortestDistance };
   };
 

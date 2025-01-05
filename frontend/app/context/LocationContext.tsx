@@ -57,5 +57,9 @@ export const useLocation = () => {
   return context;
 };
 
+export const closestCity = () => {
+  
+}
+
 // Add this default export
 export default LocationProvider;
