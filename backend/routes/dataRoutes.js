@@ -11,5 +11,5 @@ router.get('/reports', getReports);
 router.get('/polyline', getPolyline);
 router.get('/bos_station', getBosStations);
 router.get('/reports', getReports);
-router.get('/polyline', getPolyline);
+router.get('/polyline', getBosPolyline);
 module.exports = router;

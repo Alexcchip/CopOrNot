@@ -20,7 +20,15 @@ const sampleLogs = [
   { key: '12:33pm', value: 'Main Entrance (Cop)' },
 ];
 
-const lightModeStyle = [];
+const lightModeStyle = [
+  {
+    "featureType": "all",
+    "elementType": "labels",
+    "stylers": [
+      {"visibility": "off"}
+    ]
+  },
+];
 const darkModeStyle = [
   {
     "featureType": "all",
