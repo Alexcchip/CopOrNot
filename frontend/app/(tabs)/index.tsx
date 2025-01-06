@@ -35,7 +35,7 @@ const sampleLogs = [
 
 const App = () => {
   const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
-  const { location } = useLocation(); // Access the user's location
+  const { location, city } = useLocation(); // Access the user's location
   const [closestStation, setClosestStation] = useState<string | undefined>(undefined); // Explicitly define the type
   const [isLoading, setIsLoading] = useState(true);
   const [buttonState, setButtonState] = useState({
@@ -86,7 +86,7 @@ const App = () => {
     };
 
     try {
-      const response = await axios.post('https://copornot.onrender.com/api/post/'+global.city, body);
+      const response = await axios.post('https://copornot.onrender.com/api/post/'+city, body);
       //Alert.alert('Success', 'Data saved successfully!');
       console.log('Data saved:', response.data);
     } catch (error) {
