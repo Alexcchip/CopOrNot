@@ -1,13 +1,28 @@
 const { getDB } = require('../services/database');
 
-const getData = async (req, res) => {
+
+const getRecentLogs = async (req, res) => {
   try {
+    const { city, station } = req.params;
     const db = getDB();
-    const collection = db.collection('reports');
-    const data = await collection.find().toArray();
-    res.json(data);
+
+    const collectionName = `${city}_reports`;
+    const collection = db.collection(collectionName);
+
+    const logs = await collection
+      .find({ station }) 
+      .sort({ createdAt: -1 }) 
+      .limit(5)
+      .toArray();
+
+    if (logs.length === 0) {
+      return res.status(404).json({ message: 'No logs found for this station' });
+    }
+
+    res.json(logs); 
   } catch (err) {
-    res.status(500).send('Error fetching data');
+    console.error('Error fetching recent logs:', err);
+    res.status(500).send('Error fetching recent logs');
   }
 };
 
@@ -35,68 +50,34 @@ const clearSet = async (req, res) => {
 
 const getStations = async (req, res) => {
   try {
+    const { city } = req.params;
     const db = getDB();
-    const collection = db.collection('stations');
-    const result = await collection.find().toArray();
-    res.json(result); 
-  } catch (err) {
-    res.status(500).send("Error getting stations");
-  }
-};
+    
+    const collectionName = `${city}_stations`;
+    const collection = db.collection(collectionName);
 
-const getBosStations = async (req, res) => {
-  try {
-    const db = getDB();
-    const collection = db.collection('bos_station');
     const result = await collection.find().toArray();
-    res.json(result); 
-  } catch (err) {
-    res.status(500).send("Error getting stations");
-  }
-};
 
-const getReports = async (req, res) => {
-  try {
-    const db = getDB();
-    const collection = db.collection('reports');
-    const result = await collection.find().toArray();
-    res.json(result); 
+    res.json(result);
   } catch (err) {
-    res.status(500).send("Error getting stations");
-  }
-};
-
-const getBosReports = async (req, res) => {
-  try {
-    const db = getDB();
-    const collection = db.collection('bos_reports');
-    const result = await collection.find().toArray();
-    res.json(result); 
-  } catch (err) {
+    console.error('Error:', err); 
     res.status(500).send("Error getting stations");
   }
 };
 
 const getPolyline = async (req, res) => {
   try {
+    const { city } = req.params; 
+    const collectionName = `${city}_polyline`;
     const db = getDB();
-    const collection = db.collection('polyline');
+    const collection = db.collection(collectionName); 
     const result = await collection.find().toArray();
-    res.json(result); 
+    res.json(result);
   } catch (err) {
-    res.status(500).send("Error getting stations");
+    console.error('Error getting polyline:', err);
+    res.status(500).send("Error getting polyline");
   }
 };
 
-const getBosPolyline = async (req, res) => {
-  try {
-    const db = getDB();
-    const collection = db.collection('bos_polyline');
-    const result = await collection.find().toArray();
-    res.json(result); 
-  } catch (err) {
-    res.status(500).send("Error getting stations");
-  }
-};
 
-module.exports = { getStations,getData, postData, clearSet, getBosStations, getReports, getPolyline, getBosReports, getBosPolyline };
+module.exports = { getRecentLogs, getStations,getData, postData, clearSet, getReports, getPolyline };

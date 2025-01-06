@@ -50,10 +50,10 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
         // Determine the API endpoint based on city
         const isBoston = latitude >= 42.0 && latitude <= 42.4 && longitude >= -71.2 && longitude <= -70.9;
          global.city = isBoston
-          ? `bos_station`
-          : `stations`;
-          const apiUrl = 'https://copornot.onrender.com/api/'+global.city;
-        const response = await fetch(apiUrl);
+          ? `boston`
+          : `nyc`;
+          const apiUrl = `https://copornot.onrender.com/api/city/${global.city}`;
+          const response = await fetch(apiUrl);
         const rawData = await response.json();
 
         // Clean and set station data

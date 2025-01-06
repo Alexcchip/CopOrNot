@@ -49,6 +49,20 @@ const App = () => {
 
     fetchClosestStation();
   }, [location, stations]);
+
+   useEffect(() => {
+      const fetchPolylines = async () => {
+        try{
+          const cityEnd =  
+          const response = await fetch("https://copornot.onrender.com/api/"+global.city+"_polyline");
+          const data = await response.json();
+          setPolylines(data);
+        } catch (err) {
+          console.error('failed to fetch polylines:', err)
+        }
+      };
+      fetchPolylines();
+    }, []);
   // Function to post data
   const postData = async (copStatus: boolean, station: string| undefined, timeStamp: Date) => {
     if (!station) {
