@@ -3,7 +3,7 @@ const { getStations, getRecentLogs, postData, clearSet, getPolyline } = require(
 
 const router = express.Router();
 
-router.post('/post', postData);
+router.post('/post/:city', postData);
 router.post('/clear', clearSet);
 router.get('/city/:city', getStations);
 router.get('/polyline/:city', getPolyline);

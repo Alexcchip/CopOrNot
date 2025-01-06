@@ -86,7 +86,7 @@ const App = () => {
     };
 
     try {
-      const response = await axios.post('https://copornot.onrender.com/api/post', body);
+      const response = await axios.post('https://copornot.onrender.com/api/post/'+global.city, body);
       //Alert.alert('Success', 'Data saved successfully!');
       console.log('Data saved:', response.data);
     } catch (error) {

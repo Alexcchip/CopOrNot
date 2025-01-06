@@ -28,8 +28,10 @@ const getRecentLogs = async (req, res) => {
 
 const postData = async (req, res) => {
   try {
+    const { city } = req.params;
+    const collectionName = `${city}_reports`
     const db = getDB();
-    const collection = db.collection('reports');
+    const collection = db.collection(collectionName);
     const result = await collection.insertOne(req.body);
     res.status(201).json({ insertedId: result.insertedId });
   } catch (err) {
