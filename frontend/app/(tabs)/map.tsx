@@ -134,7 +134,7 @@ export default function MapScreen() {
           return;
         }
         //const cityEnd = `${window.city}_polyline`;
-        const response = await fetch(`https://copornot.onrender.com/api/polyline/${city}_polyline`);
+        const response = await fetch(`https://copornot.onrender.com/api/polyline/${city}`);
         const data = await response.json();
         setPolylines(data);
       } catch (err) {
@@ -150,7 +150,20 @@ export default function MapScreen() {
 
   const handleDeselect = () => {
     setSelectedStation(null);
-  }
+  };
+
+  const getColorMappingFunction = (city) => {
+    if (city === 'nyc') {
+      return getColorByPrefix;
+    } else if (city === 'boston') {
+      return getMBTAColorBySuffix;
+    } else {
+      console.warn('fuck is you doing there jitticus??');
+      return () => 'white';
+    }
+  };
+
+  const getColor = getColorMappingFunction(city);
 
   useFocusEffect(
     useCallback(() =>{
@@ -185,7 +198,7 @@ export default function MapScreen() {
         {polylines
         .filter((polylines) => polylines.shapeId.charAt(3) !== 'S')
         .map((polylines) => {
-          const color = getMBTAColorBySuffix(polylines.shapeId);
+          const color = getColor(polylines.shapeId);
           return(
             <Polyline
               key={polylines.shapeId}
