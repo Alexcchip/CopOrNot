@@ -129,7 +129,7 @@ export default function MapScreen() {
   useEffect(() => {
     const fetchPolylines = async () => {
       try{
-        const cityEnd =  `${globalThis.city}_polyline`;
+        const cityEnd =  `${window.city}_polyline`;
         const response = await fetch("https://copornot.onrender.com/api/polyline/"+cityEnd);
         const data = await response.json();
         setPolylines(data);
