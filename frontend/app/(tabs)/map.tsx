@@ -120,7 +120,7 @@ const getColorByPrefix = (shapeId) => {
 
 export default function MapScreen() {
   const colorScheme = useColorScheme();
-  const { location } = useLocation();
+  const { location, city } = useLocation();
   const { stations, error } = useStations();
   const [selectedStation, setSelectedStation] = useState(null);
   const [polylines, setPolylines] = useState<Polyline[]>([]);
@@ -129,8 +129,12 @@ export default function MapScreen() {
   useEffect(() => {
     const fetchPolylines = async () => {
       try{
-        const cityEnd =  `${window.city}_polyline`;
-        const response = await fetch("https://copornot.onrender.com/api/polyline/"+cityEnd);
+        if(!city){
+          console.warn('no city bruhhh');
+          return;
+        }
+        //const cityEnd = `${window.city}_polyline`;
+        const response = await fetch(`https://copornot.onrender.com/api/polyline/${city}_polyline`);
         const data = await response.json();
         setPolylines(data);
       } catch (err) {
@@ -138,7 +142,7 @@ export default function MapScreen() {
       } 
     };
     fetchPolylines();
-  }, []);
+  }, [city]);
 
   const handleSelect = (station) => {
     setSelectedStation(station);

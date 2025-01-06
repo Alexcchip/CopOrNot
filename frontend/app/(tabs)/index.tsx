@@ -7,6 +7,15 @@ import Header from '../components/Header';
 import LogPreview from '../components/LogPreview';
 import axios from 'axios';
 
+interface Polyline{
+  shapeId: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  }[];
+}
+
+
 const sampleLogs = [
   { timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true },
   { timestamp: '12:40pm', entrance: 'Side Entrance', copOrNot: false },
@@ -50,19 +59,19 @@ const App = () => {
     fetchClosestStation();
   }, [location, stations]);
 
-   useEffect(() => {
-      const fetchPolylines = async () => {
-        try{
-          const cityEnd =  
-          const response = await fetch("https://copornot.onrender.com/api/"+global.city+"_polyline");
-          const data = await response.json();
-          setPolylines(data);
-        } catch (err) {
-          console.error('failed to fetch polylines:', err)
-        }
-      };
-      fetchPolylines();
-    }, []);
+  //  useEffect(() => {
+  //     const fetchPolylines = async () => {
+  //       try{
+  //         const cityEnd =  `${window.city}_polyline`;
+  //         const response = await fetch("https://copornot.onrender.com/api/"+window.city+"_polyline");
+  //         const data = await response.json();
+  //         setPolylines(data);
+  //       } catch (err) {
+  //         console.error('failed to fetch polylines:', err)
+  //       }
+  //     };
+  //     fetchPolylines();
+  //   }, []);
   // Function to post data
   const postData = async (copStatus: boolean, station: string| undefined, timeStamp: Date) => {
     if (!station) {
