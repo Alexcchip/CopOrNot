@@ -80,4 +80,4 @@ const getPolyline = async (req, res) => {
 };
 
 
-module.exports = { getRecentLogs, getStations,getData, postData, clearSet, getReports, getPolyline };
+module.exports = { getRecentLogs, getStations, postData, clearSet, getPolyline };
