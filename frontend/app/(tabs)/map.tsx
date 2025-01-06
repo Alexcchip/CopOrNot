@@ -30,13 +30,13 @@ const lightModeStyle = [
   },
 ];
 const darkModeStyle = [
-  {
-    "featureType": "all",
-    "elementType": "labels",
-    "stylers": [
-      {"visibility": "off"}
-    ]
-  },
+  // {
+  //   "featureType": "all",
+  //   "elementType": "labels",
+  //   "stylers": [
+  //     {"visibility": "off"}
+  //   ]
+  // },
   {
     "elementType": "geometry",
     "stylers": [{ "color": "#212121" }]
@@ -61,6 +61,30 @@ const darkModeStyle = [
   }
 ];
 
+const getMBTAColorBySuffix = (shapeId) => {
+  const suffix = shapeId.slice(10)
+  const colorMapping = {
+    "8000005": "red",
+    "8000006": "blue",
+    "8000008": "pink",
+    "8000009": "orange",
+    "8000012": "white",
+    "8000013": "yellow",
+    "8000015": "green",
+    "8000018": "gray",
+    "899_0005": "purple",
+    "903_0008": "teal",
+    "903_0017": "brown",
+    "903_0018": "brown",
+    "931_0009": "brown",
+    "931_0010": "brown",
+    "933_0009": "brown",
+    "933_0010": "brown",
+    "946_0013": "brown",
+    "946_0014": "brown",
+  };
+  return colorMapping[suffix] || "white"; // Default to white if prefix not found
+}
 const getColorByPrefix = (shapeId) => {
   const prefix = shapeId.slice(0, 2); // Extract the first 2 characters
   const colorMapping = {
@@ -157,7 +181,7 @@ export default function MapScreen() {
         {polylines
         .filter((polylines) => polylines.shapeId.charAt(3) !== 'S')
         .map((polylines) => {
-          const color = getColorByPrefix(polylines.shapeId);
+          const color = getMBTAColorBySuffix(polylines.shapeId);
           return(
             <Polyline
               key={polylines.shapeId}
