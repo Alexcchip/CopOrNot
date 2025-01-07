@@ -7,6 +7,14 @@ import Header from '../components/Header';
 import LogPreview from '../components/LogPreview';
 import axios from 'axios';
 
+type Station = {
+  _id: string;
+  lat: number;
+  lon: number;
+  station: string;
+  trains: string | number;
+};
+
 interface Report {
   timeStamp: Date;
   cop: boolean;
@@ -30,6 +38,21 @@ const App = () => {
     console.log('recentLogs updated:', recentLogs);
   }, [recentLogs]);
 
+  const handleClosestStationChange = (station: Station | null) => {
+    setClosestStation(station?.station || null);
+  };
+
+  useEffect(() => {
+    if (closestStation) {
+      setButtonState({
+        isCopVisible: true,
+        isNotVisible: true,
+        isCopPressed: false,
+        isNotPressed: false,
+      });
+    }
+  }, [closestStation])
+  
   // Find the closest station when location or stations change
   useEffect(() => {
     async function fetchClosestStation() {
@@ -37,7 +60,7 @@ const App = () => {
         try {
           const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
           if (closestStation) {
-            setClosestStation(closestStation?.station);
+            setClosestStation(closestStation.station);
             console.log('Closest station set:', closestStation.station);
           } else {
             console.error('No closest station found.');
@@ -88,15 +111,15 @@ const App = () => {
     }
   };
 
-  const postData = async (copStatus: boolean, station: string | undefined, timeStamp: Date) => {
-    if (!station) {
+  const postData = async (copStatus: boolean, timeStamp: Date) => {
+    if (!closestStation) {
       Alert.alert('Error', 'No station data available.');
       return;
     }
 
     const body = {
       cop: copStatus,
-      station: station,
+      station: closestStation,
       timeStamp: timeStamp.toISOString(),
     };
 
@@ -113,12 +136,12 @@ const App = () => {
   };
 
   const handleCopPress = () => {
-    postData(true, closestStation, new Date());
+    postData(true, new Date());
     setButtonState({ ...buttonState, isCopPressed: true, isNotVisible: false });
   };
 
   const handleNotPress = () => {
-    postData(false, closestStation, new Date());
+    postData(false, new Date());
     setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
   };
 
@@ -187,7 +210,7 @@ const App = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-      <Header />
+      <Header  onClosestStationChange={handleClosestStationChange}/>
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
         {buttonState.isCopVisible && (
