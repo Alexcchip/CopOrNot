@@ -4,7 +4,7 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useLocation } from '../context/LocationContext';
 import { useStations } from '../context/StationContext';
 import PreviewBox from '../components/PreviewBox';
-import {useFocusEffect} from '@react-navigation/native'
+import {useFocusEffect} from '@react-navigation/native';
 
 interface Polyline{
   shapeId: string;
@@ -30,13 +30,13 @@ const lightModeStyle = [
   },
 ];
 const darkModeStyle = [
-  // {
-  //   "featureType": "all",
-  //   "elementType": "labels",
-  //   "stylers": [
-  //     {"visibility": "off"}
-  //   ]
-  // },
+  {
+    "featureType": "all",
+    "elementType": "labels",
+    "stylers": [
+      {"visibility": "off"}
+    ]
+  },
   {
     "elementType": "geometry",
     "stylers": [{ "color": "#212121" }]
@@ -124,6 +124,21 @@ export default function MapScreen() {
   const { stations, error } = useStations();
   const [selectedStation, setSelectedStation] = useState(null);
   const [polylines, setPolylines] = useState<Polyline[]>([]);
+  const [markerImage, setMarkerImage] = useState(
+    require('../../assets/images/stationRegular.png')
+  );
+
+  const handleRegionChangeComplete = (region) => {
+    const zoomLevel = Math.log2(360 / region.latitudeDelta); // Approximate zoom level
+    
+    if (zoomLevel < 10) {
+      setMarkerImage(require('../../assets/images/stationRegularExtraSmall.png')); // Small for zoomed out
+    } else if (zoomLevel < 14) {
+      setMarkerImage(require('../../assets/images/stationRegularSmall.png')); // Medium for mid-zoom
+    } else {
+      setMarkerImage(require('../../assets/images/stationRegular.png')); // Large for zoomed in
+    }
+  };
 
   //fetching polylines for map building
   useEffect(() => {
@@ -186,11 +201,13 @@ export default function MapScreen() {
         showsCompass={false}
         toolbarEnabled={false}
         customMapStyle={colorScheme === 'dark' ? darkModeStyle : lightModeStyle}
+        onRegionChangeComplete={handleRegionChangeComplete} //tracking zoom
         initialRegion={{
           latitude: location ? location.coords.latitude : 40.7128,
           longitude: location ? location.coords.longitude : -74.0060,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
+          latitudeDelta: 0.03,
+          longitudeDelta: 0.03,
+          //adjust default zoom
         }}
         onPress={handleDeselect}
       >
@@ -219,10 +236,10 @@ export default function MapScreen() {
             }}
             // title={station.station}
             // description={`Trains: ${station.trains}`}
-            image={require('../../assets/images/stationRegular.png')}
+            //image={require('../../assets/images/stationRegularSmall.png')}
+            image={markerImage}
             onPress={() => setTimeout(() => handleSelect(station), 0)}
-          >
-          </Marker>
+           />
         ))}
       </MapView>
       {error && <Text style={{ color: 'red' }}>Error: {error}</Text>}

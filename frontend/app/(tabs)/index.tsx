@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, View, StyleSheet, TouchableOpacity, Alert} from 'react-native';
+import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, RefreshControl} from 'react-native';
 import CText from '../components/CText';
 import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext';
@@ -38,6 +38,7 @@ const App = () => {
   const { location, city } = useLocation(); // Access the user's location
   const [closestStation, setClosestStation] = useState<string | undefined>(undefined); // Explicitly define the type
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [buttonState, setButtonState] = useState({
     isCopVisible: true,
     isNotVisible: true,
@@ -58,6 +59,15 @@ const App = () => {
 
     fetchClosestStation();
   }, [location, stations]);
+
+  // const fetchClosestStation() => {
+  //   if (location && stations.length > 0) {
+  //     setIsLoading(true);
+  //     const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+  //     setClosestStation(closestStation?.station)
+  //     setIsLoading(false);
+  //   }
+  // };
 
   //  useEffect(() => {
   //     const fetchPolylines = async () => {
@@ -105,6 +115,13 @@ const App = () => {
     postData(false, closestStation, new Date());
     setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
   };
+
+  // //pull down refresh
+  // const onRefresh = async () => {
+  //   setRefreshing(true);
+  //   await fetchClosestStation();
+  //   setRefreshing(false);
+  //   };
 
   const styles = StyleSheet.create({
     container: {
