@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, RefreshControl} from 'react-native';
+import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import CText from '../components/CText';
 import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext';
@@ -14,8 +14,9 @@ interface Report {
 }
 
 const App = () => {
-  const { city } = useLocation(); // Access the user's location
-  const [closestStation] = useState<string | undefined>(undefined); // Explicitly define the type
+  const { location, city } = useLocation(); // Access user's location and city
+  const { stations, getClosestStation } = useStations(); // Access station-related functionality
+  const [closestStation, setClosestStation] = useState<string | undefined>(undefined);
   const [buttonState, setButtonState] = useState({
     isCopVisible: true,
     isNotVisible: true,
@@ -29,14 +30,21 @@ const App = () => {
     console.log('recentLogs updated:', recentLogs);
   }, [recentLogs]);
 
-  // Find the closest station when the location changes
+  // Find the closest station when location or stations change
   useEffect(() => {
     async function fetchClosestStation() {
       if (location && stations.length > 0) {
-        setIsLoading(true);
-        const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
-        setClosestStation(closestStation?.station);
-        setIsLoading(false);
+        try {
+          const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+          if (closestStation) {
+            setClosestStation(closestStation?.station);
+            console.log('Closest station set:', closestStation.station);
+          } else {
+            console.error('No closest station found.');
+          }
+        } catch (error) {
+          console.error('Error fetching closest station:', error);
+        }
       }
     }
 
@@ -46,6 +54,7 @@ const App = () => {
   // Fetch logs when dependencies change
   useEffect(() => {
     if (stations && closestStation && city) {
+      console.log('Triggering getLogs...');
       getLogs();
     }
   }, [stations, closestStation, city]);
@@ -54,9 +63,16 @@ const App = () => {
     try {
       console.log('Fetching logs...');
       const response = await fetch(
-        `https://copornot.onrender.com/api/reports/${city}/${closestStation}?timestamp=${Date.now()}`
+        `https://copornot.onrender.com/api/reports/${city}/${closestStation}`
       );
+
+      if (!response.ok) {
+        console.error('API error:', response.status, response.statusText);
+        return;
+      }
+
       const data = await response.json();
+      console.log('Raw API response:', data);
 
       const parsedData: Report[] = data
         .map((log: any) => ({
@@ -65,10 +81,10 @@ const App = () => {
         }))
         .sort((a, b) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
 
-      console.log('Fetched and sorted logs:', parsedData);
+      console.log('Parsed and sorted logs:', parsedData);
       setLogs(parsedData);
     } catch (error) {
-      console.error('Cannot get recent logs', error);
+      console.error('Cannot get recent logs:', error);
     }
   };
 
@@ -104,12 +120,6 @@ const App = () => {
   const handleNotPress = () => {
     postData(false, closestStation, new Date());
     setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await getLogs();
-    setRefreshing(false);
   };
 
   const styles = StyleSheet.create({
@@ -172,24 +182,10 @@ const App = () => {
       height: 2.5,
       backgroundColor: 'white',
     },
-    refreshButton: {
-      backgroundColor: '#007AFF',
-      padding: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-      marginVertical: 10,
-    },
-    refreshButtonText: {
-      color: 'white',
-      fontSize: 16,
-    },
   });
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
+    <ScrollView contentContainerStyle={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <Header />
       {/* Cop or Not Section */}
