@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, RefreshControl, ScrollView} from 'react-native';
+import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, RefreshControl} from 'react-native';
 import CText from '../components/CText';
 import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext';
@@ -7,31 +7,11 @@ import Header from '../components/Header';
 import LogPreview from '../components/LogPreview';
 import axios from 'axios';
 
-interface Polyline{
-  shapeId: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  }[];
+interface Report {
+  timeStamp: Date;
+  cop: boolean;
+  station: string;
 }
-
-
-const sampleLogs = [
-  { timestamp: '12:41pm', entrance: 'Main Entrance', copOrNot: true },
-  { timestamp: '12:40pm', entrance: 'Side Entrance', copOrNot: false },
-  { timestamp: '12:33pm', entrance: 'Main Entrance', copOrNot: true },
-  { timestamp: '12:05pm', entrance: 'Main Entrance', copOrNot: true },
-  { timestamp: '11:59am', entrance: 'Side Entrance', copOrNot: false },
-];
-
-// unsused currently
-// interface Station {
-//   id: string;
-//   name: string;
-//   latitude: number;
-//   longitude: number;
-//   distance: number; // Distance from the given location
-// }
 
 const App = () => {
   const { city } = useLocation(); // Access the user's location
@@ -42,11 +22,57 @@ const App = () => {
     isCopPressed: false,
     isNotPressed: false,
   });
-  
+  const [recentLogs, setLogs] = useState<Report[] | null>(null);
 
+  // Monitor updates to recentLogs
+  useEffect(() => {
+    console.log('recentLogs updated:', recentLogs);
+  }, [recentLogs]);
 
-  // Function to post data
-  const postData = async (copStatus: boolean, station: string| undefined, timeStamp: Date) => {
+  // Find the closest station when the location changes
+  useEffect(() => {
+    async function fetchClosestStation() {
+      if (location && stations.length > 0) {
+        setIsLoading(true);
+        const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+        setClosestStation(closestStation?.station);
+        setIsLoading(false);
+      }
+    }
+
+    fetchClosestStation();
+  }, [location, stations]);
+
+  // Fetch logs when dependencies change
+  useEffect(() => {
+    if (stations && closestStation && city) {
+      getLogs();
+    }
+  }, [stations, closestStation, city]);
+
+  const getLogs = async () => {
+    try {
+      console.log('Fetching logs...');
+      const response = await fetch(
+        `https://copornot.onrender.com/api/reports/${city}/${closestStation}?timestamp=${Date.now()}`
+      );
+      const data = await response.json();
+
+      const parsedData: Report[] = data
+        .map((log: any) => ({
+          ...log,
+          timeStamp: new Date(log.timeStamp), // Convert to Date object
+        }))
+        .sort((a, b) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
+
+      console.log('Fetched and sorted logs:', parsedData);
+      setLogs(parsedData);
+    } catch (error) {
+      console.error('Cannot get recent logs', error);
+    }
+  };
+
+  const postData = async (copStatus: boolean, station: string | undefined, timeStamp: Date) => {
     if (!station) {
       Alert.alert('Error', 'No station data available.');
       return;
@@ -59,16 +85,17 @@ const App = () => {
     };
 
     try {
-      const response = await axios.post('https://copornot.onrender.com/api/post/'+city, body);
-      //Alert.alert('Success', 'Data saved successfully!');
+      const response = await axios.post(`https://copornot.onrender.com/api/post/${city}`, body);
       console.log('Data saved:', response.data);
+
+      // Re-fetch logs after posting
+      await getLogs();
     } catch (error) {
       Alert.alert('Error', 'Failed to save data.');
       console.error('Error saving data:', error.response ? error.response.data : error.message);
     }
   };
 
-  // Handlers for button presses
   const handleCopPress = () => {
     postData(true, closestStation, new Date());
     setButtonState({ ...buttonState, isCopPressed: true, isNotVisible: false });
@@ -77,6 +104,12 @@ const App = () => {
   const handleNotPress = () => {
     postData(false, closestStation, new Date());
     setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getLogs();
+    setRefreshing(false);
   };
 
   const styles = StyleSheet.create({
@@ -132,32 +165,38 @@ const App = () => {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    whiteStripe:{
+    whiteStripe: {
       position: 'absolute',
       top: 50,
       width: '100%',
       height: 2.5,
       backgroundColor: 'white',
     },
+    refreshButton: {
+      backgroundColor: '#007AFF',
+      padding: 10,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginVertical: 10,
+    },
+    refreshButtonText: {
+      color: 'white',
+      fontSize: 16,
+    },
   });
 
   return (
-    <View style={styles.container}>
-      <StatusBar
-      translucent
-      backgroundColor='transparent'
-      barStyle="light-content"
-      />
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    >
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       <Header />
       {/* Cop or Not Section */}
       <View style={styles.copOrNotContainer}>
         {buttonState.isCopVisible && (
           <TouchableOpacity
-            style={[
-              styles.buttonBase,
-              styles.cop,
-              buttonState.isCopPressed && styles.pressed,
-            ]}
+            style={[styles.buttonBase, styles.cop, buttonState.isCopPressed && styles.pressed]}
             onPress={handleCopPress}
             disabled={buttonState.isCopPressed}
           >
@@ -172,11 +211,7 @@ const App = () => {
         )}
         {buttonState.isNotVisible && (
           <TouchableOpacity
-            style={[
-              styles.buttonBase,
-              styles.not,
-              buttonState.isNotPressed && styles.pressed,
-            ]}
+            style={[styles.buttonBase, styles.not, buttonState.isNotPressed && styles.pressed]}
             onPress={handleNotPress}
             disabled={buttonState.isNotPressed}
           >
@@ -191,10 +226,10 @@ const App = () => {
         )}
       </View>
       {/* Logs Section */}
-        <View style={styles.logsContainer}>
-          <LogPreview logs={sampleLogs} />
-        </View>
-    </View>
+      <View style={styles.logsContainer}>
+        {recentLogs ? <LogPreview logs={recentLogs} /> : <CText>Loading logs...</CText>}
+      </View>
+    </ScrollView>
   );
 };
 
