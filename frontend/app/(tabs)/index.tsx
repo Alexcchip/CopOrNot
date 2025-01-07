@@ -34,8 +34,7 @@ const sampleLogs = [
 // }
 
 const App = () => {
-  const { city, refreshLocation } = useLocation(); // Access the user's location
-  const [refreshing, setRefreshing] = useState(false);
+  const { city } = useLocation(); // Access the user's location
   const [closestStation] = useState<string | undefined>(undefined); // Explicitly define the type
   const [buttonState, setButtonState] = useState({
     isCopVisible: true,
@@ -78,17 +77,6 @@ const App = () => {
   const handleNotPress = () => {
     postData(false, closestStation, new Date());
     setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try{
-      await refreshLocation();
-    } catch (error) {
-      console.error('fuck', error);
-    } finally{
-      setRefreshing(false);
-    }
   };
 
   const styles = StyleSheet.create({
@@ -160,57 +148,52 @@ const App = () => {
       backgroundColor='transparent'
       barStyle="light-content"
       />
-      <ScrollView
-      contentContainerStyle={{flexGorw: 1}}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        <Header />
-        {/* Cop or Not Section */}
-        <View style={styles.copOrNotContainer}>
-          {buttonState.isCopVisible && (
-            <TouchableOpacity
-              style={[
-                styles.buttonBase,
-                styles.cop,
-                buttonState.isCopPressed && styles.pressed,
-              ]}
-              onPress={handleCopPress}
-              disabled={buttonState.isCopPressed}
-            >
-              <View style={styles.whiteStripe} />
-              <CText style={styles.copOrNotText}>Cop</CText>
-              {buttonState.isCopPressed && (
-                <CText style={styles.underText} fontType="regular italic">
-                  Rip bro, it be like that sometimes.
-                </CText>
-              )}
-            </TouchableOpacity>
-          )}
-          {buttonState.isNotVisible && (
-            <TouchableOpacity
-              style={[
-                styles.buttonBase,
-                styles.not,
-                buttonState.isNotPressed && styles.pressed,
-              ]}
-              onPress={handleNotPress}
-              disabled={buttonState.isNotPressed}
-            >
-              <View style={styles.whiteStripe} />
-              <CText style={styles.copOrNotText}>Not</CText>
-              {buttonState.isNotPressed && (
-                <CText style={styles.underText} fontType="regular italic">
-                  Let’s go!
-                </CText>
-              )}
-            </TouchableOpacity>
-          )}
+      <Header />
+      {/* Cop or Not Section */}
+      <View style={styles.copOrNotContainer}>
+        {buttonState.isCopVisible && (
+          <TouchableOpacity
+            style={[
+              styles.buttonBase,
+              styles.cop,
+              buttonState.isCopPressed && styles.pressed,
+            ]}
+            onPress={handleCopPress}
+            disabled={buttonState.isCopPressed}
+          >
+            <View style={styles.whiteStripe} />
+            <CText style={styles.copOrNotText}>Cop</CText>
+            {buttonState.isCopPressed && (
+              <CText style={styles.underText} fontType="regular italic">
+                Rip bro, it be like that sometimes.
+              </CText>
+            )}
+          </TouchableOpacity>
+        )}
+        {buttonState.isNotVisible && (
+          <TouchableOpacity
+            style={[
+              styles.buttonBase,
+              styles.not,
+              buttonState.isNotPressed && styles.pressed,
+            ]}
+            onPress={handleNotPress}
+            disabled={buttonState.isNotPressed}
+          >
+            <View style={styles.whiteStripe} />
+            <CText style={styles.copOrNotText}>Not</CText>
+            {buttonState.isNotPressed && (
+              <CText style={styles.underText} fontType="regular italic">
+                Let’s go!
+              </CText>
+            )}
+          </TouchableOpacity>
+        )}
+      </View>
+      {/* Logs Section */}
+        <View style={styles.logsContainer}>
+          <LogPreview logs={sampleLogs} />
         </View>
-        {/* Logs Section */}
-          <View style={styles.logsContainer}>
-            <LogPreview logs={sampleLogs} />
-          </View>
-      </ScrollView>
     </View>
   );
 };
