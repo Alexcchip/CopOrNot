@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react'
 import CText from '../components/CText'
-
 import { useStations } from '../context/StationContext'; 
 import { useLocation } from '../context/LocationContext';
 import {View, StyleSheet, StatusBar} from 'react-native'
@@ -20,9 +19,13 @@ type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
                  'J' | 'L' | 'M' | 'N' | 'Q' | 'R' | 'S' | 'W' | 'Z' |
                  'SIR' | 'TRAM1' | 'TRAM2';
 
+interface HeaderProps {
+  onClosestStationChange: (station: Station | null) => void;
+}
+
 //yo which dumbass put the styles up here :sob:
 //mighta been me tbh
-export default function Header() {
+export default function Header({onClosestStationChange}: HeaderProps) {
     const { stations, getClosestStation } = useStations(); // Access stations and getClosestStation
     const { location } = useLocation(); // Access the user's location
     const [closestStation, setClosestStation] = useState<Station | null>(null); // Explicitly define the type
@@ -31,21 +34,17 @@ export default function Header() {
     //this state is used to rerender component every 5 secs
     //so that if user location changes itll update
     useEffect(() => {
-      const interval = setInterval(() => {
-        async function fetchClosestStation(){
-          if (location && stations.length > 0) {
-            setIsLoading(true);
-            const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
-            setClosestStation(closestStation);
-            setIsLoading(false);
-          }
+      async function fetchClosestStation(){
+        if (location && stations.length > 0) {
+          setIsLoading(true);
+          const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
+          setClosestStation(closestStation);
+          onClosestStationChange(closestStation);
+          setIsLoading(false);
         }
-        fetchClosestStation();//fetches location every 5 sec
-      }, 5000); //update every 5 secs
-  
-      //cleanup interval for mem mgmt
-      return () => clearInterval(interval);
-    }, [location, stations]); //location and station changes are respected
+      }
+      fetchClosestStation(); //fetches location on change
+    }, [location, stations, onClosestStationChange]); //location and station changes are respected
 
     const styles = StyleSheet.create({
       headerContainer: {

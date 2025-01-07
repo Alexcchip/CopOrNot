@@ -29,7 +29,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         subscription = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.High,
-            distanceInterval: 5,
+            distanceInterval: 10,
           },
           async (newLocation) => {
             setLocation(newLocation);
