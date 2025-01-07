@@ -15,45 +15,72 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [city, setCity] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchLocation = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        setLocation({
-          coords: {
-            latitude: 40.7128,
-            longitude: -74.0060,
-            altitude: null,
-            accuracy: null,
-            altitudeAccuracy: null,
-            heading: null,
-            speed: null,
+    let subscription: Location.LocationSubscription | null = null;
+
+    const startLocationUpdates = async () => {
+      try{
+        const {status} = await Location.requestForegroundPermissionsAsync();
+        if(status !== 'granted'){
+          console.error('permissions denid :(');
+          setFallbackLocation();
+          return;
+        }
+
+        subscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            distanceInterval: 5,
           },
-          timestamp: Date.now(),
-        });
-        setCity('nyc');
-        return;
+          async (newLocation) => {
+            setLocation(newLocation);
+            const cityName = await getCityFromCoords(
+              newLocation.coords.latitude,
+              newLocation.coords.longitude
+            );
+            setCity(cityName);
+          }
+        );
+      } catch (error) {
+        console.error('error starting location updates: ', error);
+        setFallbackLocation();
       }
-      const currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation);
-
-      const cityName = await getCityFromCoords(
-        currentLocation.coords.latitude,
-        currentLocation.coords.longitude,
-      );
-      setCity(cityName);
-      console.log(cityName);
-
     };
 
-    fetchLocation();
+    startLocationUpdates();
+
+    //cleanup subscription upon unmount
+    return () => subscription?.remove();
   }, []);
 
-  const refreshLocation = async () => {
-    const newLocation = await Location.getCurrentPositionAsync({});
-    setLocation(newLocation);
+  const refreshLocation = async() => {
+    try{
+      const newLocation = await Location.getCurrentPositionAsync({});
+      setLocation(newLocation);
+      const cityName = await getCityFromCoords(
+        newLocation.coords.latitude,
+        newLocation.coords.longitude
+      );
+      setCity(cityName);
+    } catch (error){
+      console.error('failed to refresh:', error);
+    }
   };
 
+  const setFallbackLocation = () => {
+    setLocation({
+      coords: {
+        latitude: 40.7128,
+        longitude: -74.0060,
+        altitude: null,
+        accuracy: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null,
+      },
+      timestamp: Date.now(),
+    });
+    setCity('nyc');
+  };
   return (
     <LocationContext.Provider value={{ location, city, refreshLocation }}>
       {children}
