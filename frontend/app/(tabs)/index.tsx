@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, Platform, ScrollView} from 'react-native';
 import CText from '../components/CText';
 import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext';
@@ -7,21 +7,16 @@ import Header from '../components/Header';
 import LogPreview from '../components/LogPreview';
 import axios from 'axios';
 
-type Station = {
-  _id: string;
-  lat: number;
-  lon: number;
-  station: string;
-  trains: string | number;
-};
-
-interface Report {
-  timeStamp: Date;
-  cop: boolean;
-  station: string;
+interface Polyline{
+  shapeId: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  }[];
 }
 
 const App = () => {
+  const [notifsEnabled, setNotifsEnabled] = useState(false);
   const { location, city } = useLocation(); // Access user's location and city
   const { stations, getClosestStation } = useStations(); // Access station-related functionality
   const [closestStation, setClosestStation] = useState<string | undefined>(undefined);
@@ -31,12 +26,39 @@ const App = () => {
     isCopPressed: false,
     isNotPressed: false,
   });
+
+  useEffect(() => {
+    (async () => {
+      const {status} = await Notifications.getPermissionsAsync();
+      setNotifsEnabled(status === 'granted');
+    })();
+  }, []);
+
+  const sendNotification = async (title, body) => {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title,
+      body,
+      data: { extraData: 'some data' },
+    },
+    trigger: { seconds: 2 }, // Adjust trigger timing if needed
+  });
+};
+  
+  useEffect(() => {
+    //trigger noti
+    if (closestStation){
+      sendNotification(`${closestStation}`, 'Cop or Not?');
+    }
+  }, [closestStation]);
+
   const [recentLogs, setLogs] = useState<Report[] | null>(null);
 
   // Monitor updates to recentLogs
   useEffect(() => {
     console.log('recentLogs updated:', recentLogs);
   }, [recentLogs]);
+
 
   const handleClosestStationChange = (station: Station | null) => {
     setClosestStation(station?.station || null);
@@ -144,6 +166,7 @@ const App = () => {
     postData(false, new Date());
     setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
   };
+
 
   const styles = StyleSheet.create({
     container: {

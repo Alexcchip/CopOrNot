@@ -13,8 +13,8 @@ export default {
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    name: "frontend",
-    slug: "frontend",
+    name: "CopOrNot",
+    slug: "copornot",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
@@ -26,6 +26,10 @@ export default {
       config: {
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We needa see what station you by",
+        "UIBackgroundModes": ["location", "fetch"]
+      }
     },
     android: {
       config: {
@@ -33,6 +37,8 @@ export default {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,
         },
       },
+      "permissions": ["ACCESS_FINE_LOCATION"],
+      "useNextNotificationsApi": true
     },    
     web: {
       bundler: "metro",
