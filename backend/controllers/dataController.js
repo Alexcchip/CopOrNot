@@ -11,7 +11,7 @@ const getRecentLogs = async (req, res) => {
 
     const logs = await collection
       .find({ station }) 
-      .sort({ createdAt: -1 }) 
+      .sort({ timeStamp: -1 }) 
       .limit(5)
       .toArray();
 
