@@ -54,10 +54,10 @@ const App = () => {
 
   const [recentLogs, setLogs] = useState<Report[] | null>(null);
 
-  // Monitor updates to recentLogs
-  useEffect(() => {
-    console.log('recentLogs updated:', recentLogs);
-  }, [recentLogs]);
+  // // Monitor updates to recentLogs
+  // useEffect(() => {
+  //   //console.log('recentLogs updated:', recentLogs);
+  // }, [recentLogs]);
 
 
   const handleClosestStationChange = (station: Station | null) => {
@@ -83,7 +83,7 @@ const App = () => {
           const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
           if (closestStation) {
             setClosestStation(closestStation.station);
-            console.log('Closest station set:', closestStation.station);
+            //console.log('Closest station set:', closestStation.station);
           } else {
             console.error('No closest station found.');
           }
@@ -99,14 +99,14 @@ const App = () => {
   // Fetch logs when dependencies change
   useEffect(() => {
     if (stations && closestStation && city) {
-      console.log('Triggering getLogs...');
+      //console.log('Triggering getLogs...');
       getLogs();
     }
   }, [stations, closestStation, city]);
 
   const getLogs = async () => {
     try {
-      console.log('Fetching logs...');
+      //console.log('Fetching logs...');
       const response = await fetch(
         `https://copornot.onrender.com/api/reports/${city}/${closestStation}`
       );
@@ -117,7 +117,7 @@ const App = () => {
       }
 
       const data = await response.json();
-      console.log('Raw API response:', data);
+      //console.log('Raw API response:', data);
 
       const parsedData: Report[] = data
         .map((log: any) => ({
@@ -126,7 +126,7 @@ const App = () => {
         }))
         .sort((a, b) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
 
-      console.log('Parsed and sorted logs:', parsedData);
+      //console.log('Parsed and sorted logs:', parsedData);
       setLogs(parsedData);
     } catch (error) {
       console.error('Cannot get recent logs:', error);
@@ -147,7 +147,7 @@ const App = () => {
 
     try {
       const response = await axios.post(`https://copornot.onrender.com/api/post/${city}`, body);
-      console.log('Data saved:', response.data);
+      //console.log('Data saved:', response.data);
 
       // Re-fetch logs after posting
       await getLogs();

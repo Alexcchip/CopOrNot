@@ -2,14 +2,22 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import CText from './CText'
 import TrainIcon from './TrainIcon'
+import Log from './Log'
 
 type PreviewProps = {
     title: string;
     trainLines: string | number | (string | number)[];
-    data: Record<string, any>;
+    logs: Report[];
+    onClose?:() => void;
 }
 
-const PreviewBox: React.FC<PreviewProps> = ({title, trainLines, data}) =>{
+interface Report{
+  timeStamp: Date,
+  cop: boolean,
+  station: string,
+}
+
+const PreviewBox: React.FC<PreviewProps> = ({title, trainLines, logs}) =>{
   const parsedTrainLines =
     trainLines
       ? typeof trainLines === 'string'
@@ -31,16 +39,18 @@ const PreviewBox: React.FC<PreviewProps> = ({title, trainLines, data}) =>{
         </View>
         <View style={styles.bar} />
         <View style={styles.previewContainer}>
-            <View style={styles.previewNameContainer}>
-                {Object.entries(data).map(([key, value], index) => (
-                    <View key={index} style={styles.row}>
-                        <CText style={styles.previewNameText}>{key}</CText>
-                        <CText style={styles.previewValueText}>
-                            {typeof value === 'object' ? JSON.stringify(value) : value}
-                        </CText>
-                    </View>
-                ))}
-            </View>
+          <View style={styles.logContainer}>
+          {logs?.slice(1).map((log, index) => (
+            <Log
+              key={index}
+              timestamp={log.timeStamp}
+              station={log.station}
+              copOrNot={log.cop}
+              leftStyle={{ color: 'grey' }}
+              rightStyle={{ color: 'grey' }}
+            />
+          )) || null}
+        </View>
         </View>
       </View>
     );
@@ -53,6 +63,10 @@ const styles = StyleSheet.create({
       margin: 10,
       borderRadius: 10,
       backgroundColor: '#191521',
+    },
+    logContainer: {
+      padding: 0,
+      borderRadius: 10,
     },
     title: {
       flexDirection: 'row',

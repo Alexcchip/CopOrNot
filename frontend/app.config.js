@@ -14,7 +14,7 @@ export default {
       "policy": "appVersion"
     },
     name: "CopOrNot",
-    slug: "copornot",
+    slug: "frontend",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",

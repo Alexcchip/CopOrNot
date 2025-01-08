@@ -119,6 +119,7 @@ const getColorByPrefix = (shapeId) => {
 };
 
 export default function MapScreen() {
+  const [recentLogs, setLogs] = useState<Report[] | null>(null);
   const colorScheme = useColorScheme();
   const { location, city } = useLocation();
   const { stations, error } = useStations();
@@ -127,6 +128,35 @@ export default function MapScreen() {
   const [markerImage, setMarkerImage] = useState(
     require('../../assets/images/stationRegular.png')
   );
+
+  const getLogs = async (selectedStation) => {
+    try {
+      //console.log('Fetching logs...');
+      const response = await fetch(
+        `https://copornot.onrender.com/api/reports/${city}/${selectedStation.station}`
+      );
+
+      if (!response.ok) {
+        console.error('API error:', response.status, response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      //console.log('Raw API response:', data);
+
+      const parsedData: Report[] = data
+        .map((log: any) => ({
+          ...log,
+          timeStamp: new Date(log.timeStamp), // Convert to Date object
+        }))
+        .sort((a, b) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
+
+      //console.log('Parsed and sorted logs:', parsedData);
+      setLogs(parsedData);
+    } catch (error) {
+      console.error('Cannot get recent logs:', error);
+    }
+  };
 
   const handleRegionChangeComplete = (region) => {
     const zoomLevel = Math.log2(360 / region.latitudeDelta); // Approximate zoom level
@@ -139,6 +169,13 @@ export default function MapScreen() {
       setMarkerImage(require('../../assets/images/stationRegular.png')); // Large for zoomed in
     }
   };
+
+  //fetchign logs for station
+  useEffect(() => {
+    if (selectedStation && selectedStation.station) {
+      getLogs(selectedStation); // Call getLogs with the station name
+    }
+  }, [selectedStation])
 
   //fetching polylines for map building
   useEffect(() => {
@@ -248,7 +285,7 @@ export default function MapScreen() {
           <PreviewBox
             title={selectedStation.station}
             trainLines={selectedStation.trains}
-            data={Object.fromEntries(sampleLogs.map((log) => [log.key, log.value]))}
+            logs={recentLogs || []}
             />
         </View>
           
