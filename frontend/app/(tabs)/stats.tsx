@@ -27,7 +27,7 @@ const Stats = () => {
   const [stationLogs, setStationLogs] = useState<Record<string, Report[]>>({}); // Store logs for each station
 
   // Function to fetch logs for a given station
-  const getLogs = async (stationName: string) => {
+  const getLogs = async (stationName: string, trainLines: string | number) => {
     try {
       const response = await fetch(
         `https://copornot.onrender.com/api/reports/${city}/${stationName}`

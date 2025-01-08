@@ -194,10 +194,10 @@ const App = () => {
       marginHorizontal: '2.5%',
     },
     cop: {
-      backgroundColor: '#ED4D4D',
+      backgroundColor: '#5581E0',
     },
     not: {
-      backgroundColor: '#6DC35E',
+      backgroundColor: "#E3514C",
     },
     pressed: {
       backgroundColor: 'grey',
@@ -217,9 +217,10 @@ const App = () => {
       width: '90%',
       borderRadius: 10,
       marginVertical: '5%',
+      paddingRight: 10,
       backgroundColor: '#191521',
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: 'stretch',
+      justifyContent: 'flex-start',
     },
     whiteStripe: {
       position: 'absolute',
@@ -228,6 +229,10 @@ const App = () => {
       height: 2.5,
       backgroundColor: 'white',
     },
+    logScroll: {
+      flexGrow: 1,
+      //backgroundColor: 'white',
+    }
   });
 
   return (
@@ -269,7 +274,9 @@ const App = () => {
       </View>
       {/* Logs Section */}
       <View style={styles.logsContainer}>
-        {recentLogs ? <LogPreview logs={recentLogs} /> : <CText>Loading logs...</CText>}
+        <ScrollView contentContainerStyle={styles.logScroll}>
+          {recentLogs ? <LogPreview logs={recentLogs} /> : <CText>Loading logs...</CText>}
+        </ScrollView>
       </View>
     </ScrollView>
   );

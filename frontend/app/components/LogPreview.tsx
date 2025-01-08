@@ -28,11 +28,11 @@ const LogPreview: React.FC<LogPreviewProps> = ({ logs, onClose }) => {
             station={logs[0].station}
             copOrNot={logs[0].cop}
             leftStyle={{
-              color: logs[0].cop ? '#ED4D4D' : '#6DC35E',
+              color: logs[0].cop ? '#5581E0' : "#E3514C",
               fontSize: leftFont,
             }}
             rightStyle={{
-              color: logs[0].cop ? '#ED4D4D' : '#6DC35E',
+              color: logs[0].cop ? '#5581E0' : "#E3514C",
               fontSize: rightFont,
             }}
           />
@@ -57,10 +57,11 @@ const LogPreview: React.FC<LogPreviewProps> = ({ logs, onClose }) => {
 
 const styles = StyleSheet.create({
   logBunchContainer: {
+    //backgroundColor: 'orange',
     width: '100%',
     padding: 10,
     paddingBottom: 0,
-    margin: 10,
+    margin: 0,
     borderRadius: 10,
   },
   topLogContainer: {
