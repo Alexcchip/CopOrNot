@@ -25,6 +25,8 @@ const PreviewBox: React.FC<PreviewProps> = ({title, trainLines, logs}) =>{
         : [trainLines.toString()] // Handle numerical trains
       : ['SIR']; // Fallback for missing trains
 
+    const displayedLogs = logs.slice(0, 3);
+
     return(
       <View style={styles.container}>
         <View style={styles.title}>
@@ -40,7 +42,7 @@ const PreviewBox: React.FC<PreviewProps> = ({title, trainLines, logs}) =>{
         <View style={styles.bar} />
         <View style={styles.previewContainer}>
           <View style={styles.logContainer}>
-          {logs?.slice(1).map((log, index) => (
+          {displayedLogs?.map((log, index) => (
             <Log
               key={index}
               timestamp={log.timeStamp}

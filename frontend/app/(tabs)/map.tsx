@@ -13,13 +13,6 @@ interface Polyline{
     longitude: number;
   }[];
 }
-
-const sampleLogs = [
-  { key: '12:41pm', value: 'Main Entrance (Cop)' },
-  { key: '12:40pm', value: 'Side Entrance (No Cop)' },
-  { key: '12:33pm', value: 'Main Entrance (Cop)' },
-];
-
 const lightModeStyle = [
   {
     "featureType": "all",
@@ -137,7 +130,8 @@ export default function MapScreen() {
       );
 
       if (!response.ok) {
-        console.error('API error:', response.status, response.statusText);
+        //console.error('API error:', response.status, response.statusText);
+        setLogs([]);
         return;
       }
 

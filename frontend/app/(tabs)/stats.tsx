@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import { StatusBar, View, StyleSheet, TouchableOpacity, Alert, ScrollView, TextInput } from 'react-native'
-import CText from '../components/CText'
-import { useStations } from '../context/StationContext'
-import SearchHeader from '../components/SearchHeader'
-import PreviewBox from '../components/PreviewBox'
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import CText from '../components/CText';
+import { useStations } from '../context/StationContext';
+import { useLocation } from '../context/LocationContext'; // To get city
+import SearchHeader from '../components/SearchHeader';
+import PreviewBox from '../components/PreviewBox';
 
 type Station = {
   _id: string;
@@ -13,11 +14,42 @@ type Station = {
   trains: string | number;
 };
 
-const Stats = () => {
-  const {stations} = useStations();
-  const [filteredStations, setFilteredStations] = useState<Station[]>([]);
+type Report = {
+  timeStamp: Date;
+  cop: boolean;
+  station: string;
+};
 
-  //handleChange for whenever search query updates
+const Stats = () => {
+  const { stations } = useStations();
+  const { city } = useLocation(); // Retrieve city from location context
+  const [filteredStations, setFilteredStations] = useState<Station[]>([]);
+  const [stationLogs, setStationLogs] = useState<Record<string, Report[]>>({}); // Store logs for each station
+
+  // Function to fetch logs for a given station
+  const getLogs = async (stationName: string) => {
+    try {
+      const response = await fetch(
+        `https://copornot.onrender.com/api/reports/${city}/${stationName}`
+      );
+
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      return data
+        .map((log: any) => ({
+          ...log,
+          timeStamp: new Date(log.timeStamp), // Convert to Date object
+        }))
+        .sort((a: Report, b: Report) => b.timeStamp.getTime() - a.timeStamp.getTime())
+        .slice(0, 3); // Return the most recent 3 logs
+    } catch (error) {
+      console.error(`Failed to fetch logs for station ${stationName}:`, error);
+      return [];
+    }
+  };
+
+  // Handle search query updates
   const handleChange = (query: string) => {
     const filtered = stations.filter((station) =>
       station.station.toLowerCase().includes(query.toLowerCase())
@@ -25,18 +57,27 @@ const Stats = () => {
     setFilteredStations(filtered);
   };
 
-  //initializes empty list as first 25 stations to populate stats page on new load
+  // Initialize with the first 25 stations and fetch logs
   useEffect(() => {
-    if (stations.length > 0){
-      setFilteredStations(stations.slice(0, 25));
-    }
-  }, [stations]);
+    if (stations.length > 0) {
+      const initialStations = stations.slice(0, 25);
+      setFilteredStations(initialStations);
 
-  //loading screen for when stations is taking a bit, shouldnt ever happen though
+      initialStations.forEach(async (station) => {
+        const logs = await getLogs(station.station);
+        setStationLogs((prev) => ({
+          ...prev,
+          [station.station]: logs,
+        }));
+      });
+    }
+  }, [stations, city]); // Added city as a dependency
+
+  // Loading screen for when stations are not yet available
   if (stations.length === 0) {
     return (
       <View style={styles.container}>
-        <SearchHeader onChange={handleChange}/>
+        <SearchHeader onChange={handleChange} />
         <View style={styles.loadingContainer}>
           <CText style={styles.loadingText}>Loading stations...</CText>
         </View>
@@ -46,68 +87,29 @@ const Stats = () => {
 
   return (
     <View style={styles.container}>
-        <SearchHeader onChange={handleChange}/>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.previewContainer}>
-              {filteredStations.map((station) => (
-                <PreviewBox
-                  key={station._id}
-                  title={station.station}
-                  trainLines={station.trains}
-                  data={{
-                    Latitude: station.lat,
-                    Longitude: station.lon,
-                  }}
-                />
-              ))}
-            </View>
-        </ScrollView>
+      <SearchHeader onChange={handleChange} />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.previewContainer}>
+          {filteredStations.map((station) => (
+            <PreviewBox
+              key={station._id}
+              title={station.station}
+              trainLines={station.trains}
+              logs={stationLogs[station.station] || []} // Pass logs if available
+            />
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 };
 
-// Base Style for Consistency
-const baseViewStyle = {
-  position: 'relative',
-  borderRadius: 10,
-  width: '90%',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'white',
-};
-
-// StyleSheet
 const styles = StyleSheet.create({
   searchContainer: {
     margin: 10,
     marginBottom: 0,
     marginTop: 15,
     paddingHorizontal: 10,
-    
-  },
-  searchInput: {
-    height: 60,
-    //borderColor: '#444',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    color: 'white',
-    backgroundColor: '#333',
-    fontSize: 24,
-  },
-  textInput: {
-    flex: 1,
-    height: '100%',
-    paddingHorizontal: 15, // Add more padding for better appearance
-    //fontSize: 36, // Increase font size for larger text
-    color: 'white',
-  },
-  placeholderText: {
-    position: 'absolute',
-    left: 15, // Match padding of text input
-    top: 18, // Adjust for larger height
-    fontSize: 24, // Match font size of text input
-    color: '#999',
   },
   loadingContainer: {
     flex: 1,
@@ -118,20 +120,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
   },
-  whiteStripe:{
-    position: 'absolute',
-    top: 50,
-    width: '100%',
-    height: 5,
-    backgroundColor: 'white',
-  },
   container: {
     flex: 1,
     backgroundColor: '#261C2E',
   },
   scrollContent: {
     alignSelf: 'center',
-    padding: 20, // Add padding for a better scroll experience
+    padding: 20,
     paddingTop: 10,
     width: '100%',
   },
