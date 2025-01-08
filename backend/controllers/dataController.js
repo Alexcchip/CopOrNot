@@ -4,13 +4,19 @@ const { getDB } = require('../services/database');
 const getRecentLogs = async (req, res) => {
   try {
     const { city, station } = req.params;
+    const {trainLines} = req.query; //acc trainLines as a query param
     const db = getDB();
 
     const collectionName = `${city}_reports`;
     const collection = db.collection(collectionName);
 
+    const filter = {station};
+    if (trainLines) {
+      filter.trains = trainLines; //match train lines
+    }
+
     const logs = await collection
-      .find({ station }) 
+      .find(filter) 
       .sort({ timeStamp: -1 }) 
       .limit(5)
       .toArray();
@@ -29,10 +35,18 @@ const getRecentLogs = async (req, res) => {
 const postData = async (req, res) => {
   try {
     const { city } = req.params;
+    const {station, trains, cop, timeStamp} = req.body; //extract train lines and other data
     const collectionName = `${city}_reports`
     const db = getDB();
     const collection = db.collection(collectionName);
-    const result = await collection.insertOne(req.body);
+
+    // Validate input
+    if (!station || !trains || cop === undefined || !timeStamp) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+  
+    //inserting data
+    const result = await collection.insertOne({station, trains, cop, timeStamp});
     res.status(201).json({ insertedId: result.insertedId });
   } catch (err) {
     res.status(500).send('Error inserting data');
