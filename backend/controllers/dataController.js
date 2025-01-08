@@ -95,5 +95,4 @@ const getPolyline = async (req, res) => {
   }
 };
 
-
 module.exports = { getRecentLogs, getStations, postData, clearSet, getPolyline };
