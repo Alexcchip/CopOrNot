@@ -313,7 +313,8 @@ const styles = StyleSheet.create({
   },
   logScroll: {
     flexGrow: 1,
-    //backgroundColor: 'white',
+    alignItems: 'center',
+    color: "white"
   }
 });
 
