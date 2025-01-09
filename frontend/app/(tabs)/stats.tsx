@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import CText from '../components/CText';
 import { useStations } from '../context/StationContext';
 import { useLocation } from '../context/LocationContext'; // To get city
 import SearchHeader from '../components/SearchHeader';
 import PreviewBox from '../components/PreviewBox';
+import debounce from 'lodash/debounce';
 
 type Station = {
   _id: string;
@@ -26,7 +27,9 @@ const Stats = () => {
   const { city } = useLocation(); // Retrieve city from location context
   const [filteredStations, setFilteredStations] = useState<Station[]>([]);
   const [stationLogs, setStationLogs] = useState<Record<string, Report[]>>({}); // Store logs for each station
-
+  const [loading, setLoading] = useState<boolean>(true);
+  const logCache = useMemo(() => ({} as Record<string, Report[]>), []);
+  
   // Function to fetch logs for a given station
   const getLogs = async (stationName: string, trainLines: string | number) => {
     try {
@@ -51,55 +54,102 @@ const Stats = () => {
     }
   };
 
-  // Handle search query updates
-  const handleChange = (query: string) => {
-    const filtered = stations.filter((station) =>
-      station.station.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredStations(filtered);
+  // debounched search handler
+  const handleChange = useCallback(
+    debounce((query: string) => {
+      const filtered = stations.filter((station) =>
+        station.station.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredStations(filtered);
+    }, 300),
+    [stations]
+  );
+
+  //batch fetch logs for stations
+  const fetchLogsForStations = async (stations: Station[]) => {
+    const logsForStations: Record<string, Report[]> = {};
+
+    const requests = stations.map(async (station) => {
+      const cacheKey = `${station.station}-${station.trains}`;
+      if (logCache[cacheKey]) {
+        logsForStations[cacheKey] = logCache[cacheKey];
+      } else {
+        //fetching logs if not cached
+        try {
+          const response = await fetch(
+            `https://copornot.onrender.com/api/reports/${city}/${encodeURIComponent(
+              station.station
+            )}?trains=${encodeURIComponent(String(station.trains))}`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            const parsedLogs = data
+              .map((log: any) => ({
+                ...log,
+                timeStamp: new Date(log.timeStamp),
+              }))
+              .sort((a: Report, b: Report) => b.timeStamp.getTime() - a.timeStamp.getTime())
+              .slice(0, 3);
+
+            logsForStations[cacheKey] = parsedLogs;
+            logCache[cacheKey] = parsedLogs; // Update cache
+          } else {
+            logsForStations[cacheKey] = [];
+          }
+        } catch (error) {
+          console.error(`Failed to fetch logs for ${station.station}:`, error);
+          logsForStations[cacheKey] = [];
+        }
+      }
+    });
+
+    await Promise.all(requests);
+    return logsForStations;
   };
 
-  //fetch logs whenever filter changes
+  //fetch logs when filtere changes
   useEffect(() => {
-    const fetchLogsForFilteredStations = async () => {
+    const fetchLogsForStations = async () => {
+      setLoading(true); //start loading
       const logsForStations: Record<string, Report[]> = {};
-      for (const station of filteredStations){
-        const logs = await getLogs(station.station, station.trains);
-        logsForStations[`${station.station}-${station.trains}`] = logs;
-      }
+
+      await Promise.all(
+        filteredStations.map(async (station) =>{
+          const logs = await getLogs(station.station, station.trains);
+          logsForStations[`${station.station}-${station.trains}`] = logs;
+        })
+      );
+
       setStationLogs(logsForStations);
+      setLoading(false); //end loading
     };
+
     if(filteredStations.length > 0){
-      fetchLogsForFilteredStations();
+      fetchLogsForStations();
+    } else {
+      setStationLogs({});
+      setLoading(false);
     }
   }, [filteredStations, city]);
 
-  // Initialize with the first 25 stations and fetch logs
+  //init filtered stations
   useEffect(() => {
     if (stations.length > 0) {
       const initialStations = stations.slice(0, 25);
       setFilteredStations(initialStations);
-
-      initialStations.forEach(async (station) => {
-        const logs = await getLogs(station.station, station.trains);
-        setStationLogs((prev) => ({
-          ...prev,
-          [station.station]: logs,
-        }));
-      });
     }
-  }, [stations, city]); // Added city as a dependency
+  }, [stations]);
 
   // Loading screen for when stations are not yet available
-  if (stations.length === 0) {
-    return (
+  if (loading) {
+    return(
       <View style={styles.container}>
         <SearchHeader onChange={handleChange} />
         <View style={styles.loadingContainer}>
           <CText style={styles.loadingText}>Loading stations...</CText>
         </View>
       </View>
-    );
+    )
   }
 
   return (

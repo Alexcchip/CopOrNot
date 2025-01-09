@@ -29,7 +29,7 @@ import ZTrain from './trains/ZTrain';
 import NJTransit from './trains/NJTransit';
 import TRAM from './trains/Tram';
 
-type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
+export type TrainLine = '1' | '2' | '3' | '4' | '5' | '6' | '7' |
                  'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' |
                  'J' | 'L' | 'M' | 'N' | 'Q' | 'R' | 'S' | 'W' | 'Z' |
                  'SIR' | 'TRAM1' | 'TRAM2';

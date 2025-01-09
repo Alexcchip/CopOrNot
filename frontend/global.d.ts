@@ -1,8 +1,6 @@
 export {};
 
 declare global {
-  interface Window {
-    city: string;
-  }
+  var city: string | null;
 }
 

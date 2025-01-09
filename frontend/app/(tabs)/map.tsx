@@ -1,6 +1,6 @@
 import React, {useState, useCallback, useEffect} from 'react';
 import { View, StyleSheet, Text, useColorScheme, } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { Marker, Polyline, Region } from 'react-native-maps';
 import { useLocation } from '../context/LocationContext';
 import { useStations } from '../context/StationContext';
 import PreviewBox from '../components/PreviewBox';
@@ -13,6 +13,14 @@ interface Polyline{
     longitude: number;
   }[];
 }
+
+interface Report {
+  timeStamp: Date; // Ensure this is a Date type
+  cop: boolean;
+  station: string;
+  trains: string | number;
+}
+
 const lightModeStyle = [
   {
     "featureType": "all",
@@ -54,9 +62,9 @@ const darkModeStyle = [
   }
 ];
 
-const getMBTAColorBySuffix = (shapeId) => {
+const getMBTAColorBySuffix = (shapeId: string) => {
   const suffix = shapeId.slice(10)
-  const colorMapping = {
+  const colorMapping: Record<string, string> = {
     "8000005": "green",
     "8000006": "green",
     "8000008": "pink",
@@ -78,9 +86,9 @@ const getMBTAColorBySuffix = (shapeId) => {
   };
   return colorMapping[suffix] || "white"; // Default to white if prefix not found
 }
-const getColorByPrefix = (shapeId) => {
+const getColorByPrefix = (shapeId: string) => {
   const prefix = shapeId.slice(0, 2); // Extract the first 2 characters
-  const colorMapping = {
+  const colorMapping: Record<string, string> = {
     "1.": "#ee342e", 
     "2.": "#ee342e",
     "3.": "#ee342e", 
@@ -160,7 +168,7 @@ export default function MapScreen() {
           ...log,
           timeStamp: new Date(log.timeStamp), // Convert to Date object
         }))
-        .sort((a, b) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
+        .sort((a: Report, b: Report) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
 
       //console.log('Parsed and sorted logs:', parsedData);
       setLogs(parsedData);
@@ -169,7 +177,7 @@ export default function MapScreen() {
     }
   };
 
-  const handleRegionChangeComplete = (region) => {
+  const handleRegionChangeComplete = (region: Region) => {
     const zoomLevel = Math.log2(360 / region.latitudeDelta); // Approximate zoom level
     
     if (zoomLevel < 10) {
@@ -215,7 +223,7 @@ export default function MapScreen() {
     setSelectedStation(null);
   };
 
-  const getColorMappingFunction = (city) => {
+  const getColorMappingFunction = (city: string) => {
     if (city === 'nyc') {
       return getColorByPrefix;
     } else if (city === 'boston') {
@@ -226,7 +234,7 @@ export default function MapScreen() {
     }
   };
 
-  const getColor = getColorMappingFunction(city);
+  const getColor = city ? getColorMappingFunction(city): () => 'white';
 
   useFocusEffect(
     useCallback(() =>{

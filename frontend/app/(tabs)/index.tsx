@@ -17,8 +17,15 @@ interface ClosestStation {
   trains: string | number;
 }
 
+interface Report {
+  timeStamp: Date; // Ensure this is a Date type
+  cop: boolean;
+  station: string;
+  trains: string | number;
+}
+
 const App = () => {
-  const [notifsEnabled, setNotifsEnabled] = useState(false);
+  //const [notifsEnabled, setNotifsEnabled] = useState(false);
   const { location, city } = useLocation(); // Access user's location and city
   const { stations, getClosestStation } = useStations(); // Access station-related functionality
   const [closestStation, setClosestStation] = useState<ClosestStation | null>(null);
@@ -79,7 +86,8 @@ const App = () => {
         isNotPressed: false,
       });
     }
-  }, [closestStation?.station])
+    getLogs();
+  }, [closestStation])
   
   // Find the closest station when location or stations change
   useEffect(() => {
@@ -88,11 +96,7 @@ const App = () => {
         try {
           const result = getClosestStation(location.coords.latitude, location.coords.longitude);
           if (result.closestStation) {
-            if (
-              !closestStation ||
-              closestStation.station !== result.closestStation.station ||
-              closestStation.trains !== result.closestStation.trains
-            ) {
+            if (result.closestStation) {
               setClosestStation({
                 station: result.closestStation.station || '',
                 trains: result.closestStation.trains || '',
@@ -100,7 +104,7 @@ const App = () => {
             }
             //console.log('Closest station set:', closestStation.station);
           } else {
-            console.error('No closest station found,', error);
+            console.error('No closest station found');
           }
         } catch (error) {
           console.error('Error fetching closest station:', error);
@@ -109,7 +113,7 @@ const App = () => {
     }
 
     fetchClosestStation();
-  }, [location]);
+  }, [location, stations]);
 
   // Fetch logs when dependencies change
   useEffect(() => {
@@ -119,6 +123,7 @@ const App = () => {
     }
   }, [closestStation?.station]);
 
+  //fetch logs when closestStation changes
   const getLogs = async () => {
     if (!closestStation) return;
     try {
@@ -147,7 +152,7 @@ const App = () => {
           ...log,
           timeStamp: new Date(log.timeStamp), // Convert to Date object
         }))
-        .sort((a, b) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
+        .sort((a : Report, b : Report) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
 
       //console.log('Parsed and sorted logs:', parsedData);
       setLogs(parsedData);
@@ -175,9 +180,16 @@ const App = () => {
 
       // Re-fetch logs after posting
       await getLogs();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to save data.');
-      console.error('Error saving data:', error.response ? error.response.data : error.message);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios-specific errors
+        Alert.alert('Error', 'Failed to save data.');
+        console.error('Error saving data:', error.response?.data || error.message);
+      } else {
+        // Handle generic errors
+        Alert.alert('Error', 'An unexpected error occurred.');
+        console.error('Unexpected error:', error);
+      }
     }
   };
 
@@ -207,7 +219,7 @@ const App = () => {
             <CText style={styles.copOrNotText}>Cop</CText>
             {buttonState.isCopPressed && (
               <CText style={styles.underText} fontType="regular italic">
-                Rip bro, it be like that sometimes.
+                eating booty is healthier than eating poopy
               </CText>
             )}
           </TouchableOpacity>
@@ -222,7 +234,7 @@ const App = () => {
             <CText style={styles.copOrNotText}>Not</CText>
             {buttonState.isNotPressed && (
               <CText style={styles.underText} fontType="regular italic">
-                Let’s go!
+                Do not put both arms on either side of the turnstile, lift your left, and swing forward to evade the $2.90 fare. Don't do that!
               </CText>
             )}
           </TouchableOpacity>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import CText from './CText'
-import TrainIcon from './TrainIcon'
+import TrainIcon, {TrainLine} from './TrainIcon'
 import Log from './Log'
 
 type PreviewProps = {
@@ -10,6 +10,7 @@ type PreviewProps = {
     logs: Report[];
     onClose?:() => void;
 }
+
 
 interface Report{
   timeStamp: Date,
@@ -29,24 +30,29 @@ const PreviewBox: React.FC<PreviewProps> = ({title, trainLines, logs}) =>{
 
     return(
       <View style={styles.container}>
+        {/* Top Title */}
         <View style={styles.title}>
           <View style={styles.titleContainer}>
             <CText style={styles.titleText}>{title}</CText>
           </View>
           <View style={styles.trainIconsContainer}>
             {parsedTrainLines.map((trainLine, index) => (
-              <TrainIcon key={index} trainLine={trainLine} height='25' width='25' />
+              <TrainIcon key={index} trainLine={trainLine as TrainLine} height={25} width={25} />
             ))}
           </View>
         </View>
+
+        {/* Divider */}
         <View style={styles.bar} />
+
+        {/* Logs */}
         <View style={styles.previewContainer}>
           <View style={styles.logContainer}>
           {displayedLogs?.map((log, index) => (
             <Log
               key={index}
               timestamp={log.timeStamp}
-              station={log.station}
+              station={log.timeStamp.toLocaleDateString()} //used to show date instead
               copOrNot={log.cop}
               leftStyle={{ color: 'grey' }}
               rightStyle={{ color: 'grey' }}
