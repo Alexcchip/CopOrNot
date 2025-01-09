@@ -78,31 +78,25 @@ const App = () => {
   };
 
   useEffect(() => {
-    if (closestStation) {
-      setButtonState({
-        isCopVisible: true,
-        isNotVisible: true,
-        isCopPressed: false,
-        isNotPressed: false,
-      });
-    }
-    getLogs();
-  }, [closestStation])
-  
-  // Find the closest station when location or stations change
-  useEffect(() => {
     async function fetchClosestStation() {
       if (location && stations.length > 0) {
         try {
           const result = getClosestStation(location.coords.latitude, location.coords.longitude);
           if (result.closestStation) {
-            if (result.closestStation) {
-              setClosestStation({
-                station: result.closestStation.station || '',
-                trains: result.closestStation.trains || '',
-              });
+            const updatedStation = {
+              station: result.closestStation.station || '',
+              trains: result.closestStation.trains || '',
+            };
+  
+            // Only update if the station has actually changed
+            if (
+              !closestStation ||
+              closestStation.station !== updatedStation.station ||
+              closestStation.trains !== updatedStation.trains
+            ) {
+              console.log('Updating closest station:', updatedStation);
+              setClosestStation(updatedStation);
             }
-            //console.log('Closest station set:', closestStation.station);
           } else {
             console.error('No closest station found');
           }
@@ -111,55 +105,61 @@ const App = () => {
         }
       }
     }
-
+  
     fetchClosestStation();
   }, [location, stations]);
-
-  // Fetch logs when dependencies change
+  
   useEffect(() => {
-    if (stations && closestStation && city) {
-      //console.log('Triggering getLogs...');
-      getLogs();
+    async function triggerGetLogs() {
+      if (stations.length > 0 && closestStation && city) {
+        console.log('Triggering getLogs for:', closestStation, city);
+        await getLogs();
+      }
     }
-  }, [closestStation?.station]);
-
-  //fetch logs when closestStation changes
+  
+    triggerGetLogs();
+  }, [closestStation, city, stations]);
+  
   const getLogs = async () => {
-    if (!closestStation) return;
+    if (!closestStation) {
+      console.error('No closest station available for logs');
+      return;
+    }
+  
     try {
-      //console.log('Fetching logs...');
+      console.log('Fetching logs for:', closestStation.station);
       const response = await fetch(
         `https://copornot.onrender.com/api/reports/${city}/${closestStation.station}?trains=${encodeURIComponent(
           closestStation.trains
         )}`
       );
-
-      if (response.status === 404){
+  
+      if (response.status === 404) {
+        console.warn('No logs found for station:', closestStation.station);
         setLogs([]);
         return;
       }
-
+  
       if (!response.ok) {
         console.error('API error:', response.status, response.statusText);
         return;
       }
-
+  
       const data = await response.json();
-      //console.log('Raw API response:', data);
-
       const parsedData: Report[] = data
         .map((log: any) => ({
           ...log,
-          timeStamp: new Date(log.timeStamp), // Convert to Date object
+          timeStamp: new Date(log.timeStamp),
         }))
-        .sort((a : Report, b : Report) => b.timeStamp.getTime() - a.timeStamp.getTime()); // Sort by descending time
-
-      //console.log('Parsed and sorted logs:', parsedData);
+        .sort((a: Report, b: Report) => b.timeStamp.getTime() - a.timeStamp.getTime());
+  
+      console.log('Parsed logs:', parsedData);
       setLogs(parsedData);
     } catch (error) {
-      console.error('Cannot get recent logs:', error);
+      console.error('Error fetching logs:', error);
     }
   };
+  
 
   const postData = async (copStatus: boolean, timeStamp: Date) => {
     if (!closestStation) {
