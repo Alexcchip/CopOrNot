@@ -40,7 +40,7 @@ const LogPreview: React.FC<LogPreviewProps> = ({ logs, onClose }) => {
       </View>
       <View style={styles.bar} />
       <View style={styles.logContainer}>
-        {logs.slice(1).map((log, index) => (
+        {logs.slice(1, 4).map((log, index) => (
           <Log
             key={index}
             timestamp={log.timeStamp}

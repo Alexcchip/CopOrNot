@@ -18,6 +18,7 @@ type Report = {
   timeStamp: Date;
   cop: boolean;
   station: string;
+  trains: string | number;
 };
 
 const Stats = () => {
@@ -30,13 +31,14 @@ const Stats = () => {
   const getLogs = async (stationName: string, trainLines: string | number) => {
     try {
       const response = await fetch(
-        `https://copornot.onrender.com/api/reports/${city}/${stationName}`
+        `https://copornot.onrender.com/api/reports/${city}/${encodeURIComponent(stationName)}?trains=${encodeURIComponent(String(trainLines))}`
       );
 
       if (!response.ok) return [];
 
       const data = await response.json();
       return data
+        .filter((log: any) => String(log.trains) === String(trainLines)) // Match logs with train lines
         .map((log: any) => ({
           ...log,
           timeStamp: new Date(log.timeStamp), // Convert to Date object
@@ -57,6 +59,21 @@ const Stats = () => {
     setFilteredStations(filtered);
   };
 
+  //fetch logs whenever filter changes
+  useEffect(() => {
+    const fetchLogsForFilteredStations = async () => {
+      const logsForStations: Record<string, Report[]> = {};
+      for (const station of filteredStations){
+        const logs = await getLogs(station.station, station.trains);
+        logsForStations[`${station.station}-${station.trains}`] = logs;
+      }
+      setStationLogs(logsForStations);
+    };
+    if(filteredStations.length > 0){
+      fetchLogsForFilteredStations();
+    }
+  }, [filteredStations, city]);
+
   // Initialize with the first 25 stations and fetch logs
   useEffect(() => {
     if (stations.length > 0) {
@@ -64,7 +81,7 @@ const Stats = () => {
       setFilteredStations(initialStations);
 
       initialStations.forEach(async (station) => {
-        const logs = await getLogs(station.station);
+        const logs = await getLogs(station.station, station.trains);
         setStationLogs((prev) => ({
           ...prev,
           [station.station]: logs,
@@ -92,10 +109,10 @@ const Stats = () => {
         <View style={styles.previewContainer}>
           {filteredStations.map((station) => (
             <PreviewBox
-              key={station._id}
+              key={`${station._id}-${station.trains}`}
               title={station.station}
               trainLines={station.trains}
-              logs={stationLogs[station.station] || []} // Pass logs if available
+              logs={stationLogs[`${station.station}-${station.trains}`] || []} // Use combined key for logs
             />
           ))}
         </View>

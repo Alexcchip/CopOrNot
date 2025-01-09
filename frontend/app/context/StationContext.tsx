@@ -6,7 +6,7 @@ type Station = {
   lat: number;
   lon: number;
   station: string;
-  trains: string | number;
+  trains: string;
   _id: string;
 };
 
@@ -22,13 +22,14 @@ export const StationContext = createContext<StationContextType | undefined>(unde
 export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stations, setStations] = useState<Station[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [city, setCity] = useState<string | null>(null);
 
   const cleanStationData = (rawData: any[]): Station[] => {
     return rawData.map((item) => ({
       lat: parseFloat(item[" lat"] || item.lat),
       lon: parseFloat(item[" lon"] || item.lon),
       station: item[" station"] || item.station,
-      trains: item[" trains"] || item.trains,
+      trains: String(item[" trains"] || item.trains),
       _id: item._id,
     }));
   };
@@ -58,6 +59,7 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         // Clean and set station data
         const cleanedData = cleanStationData(rawData);
+        //console.log(cleanedData);
         setStations(cleanedData);
       } catch (err: any) {
         setError(err.message);
@@ -67,7 +69,9 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
     fetchStations();
   }, []);
 
-  const getClosestStation = (userLat: number, userLon: number): { closestStation: Station | null; shortestDistance: number } => {
+  const getClosestStation = (
+    userLat: number, userLon: number
+  ): { closestStation: Station | null; shortestDistance: number } => {
     if (stations.length === 0) return { closestStation: null, shortestDistance: Infinity };
 
     const toRadians = (deg: number) => (deg * Math.PI) / 180;

@@ -7,19 +7,22 @@ import Header from '../components/Header';
 import LogPreview from '../components/LogPreview';
 import axios from 'axios';
 
-interface Polyline{
-  shapeId: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  }[];
+interface Station {
+  station: string;
+  trains: string | number;
+}
+
+interface ClosestStation {
+  station: string;
+  trains: string | number;
 }
 
 const App = () => {
   const [notifsEnabled, setNotifsEnabled] = useState(false);
   const { location, city } = useLocation(); // Access user's location and city
   const { stations, getClosestStation } = useStations(); // Access station-related functionality
-  const [closestStation, setClosestStation] = useState<string | undefined>(undefined);
+  const [closestStation, setClosestStation] = useState<ClosestStation | null>(null);
+  const [recentLogs, setLogs] = useState<Report[] | null>(null);
   const [buttonState, setButtonState] = useState({
     isCopVisible: true,
     isNotVisible: true,
@@ -27,41 +30,44 @@ const App = () => {
     isNotPressed: false,
   });
 
-  useEffect(() => {
-    (async () => {
-      const {status} = await Notifications.getPermissionsAsync();
-      setNotifsEnabled(status === 'granted');
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const {status} = await Notifications.getPermissionsAsync();
+  //     setNotifsEnabled(status === 'granted');
+  //   })();
+  // }, []);
 
-  const sendNotification = async (title, body) => {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title,
-      body,
-      data: { extraData: 'some data' },
-    },
-    trigger: { seconds: 2 }, // Adjust trigger timing if needed
-  });
-};
+  // const sendNotification = async (title, body) => {
+  // await Notifications.scheduleNotificationAsync({
+  //   content: {
+  //     title,
+  //     body,
+  //     data: { extraData: 'some data' },
+  //   },
+  //   trigger: { seconds: 2 }, // Adjust trigger timing if needed
+  // });
+  //};
   
-  useEffect(() => {
-    //trigger noti
-    if (closestStation){
-      sendNotification(`${closestStation}`, 'Cop or Not?');
-    }
-  }, [closestStation]);
+  // useEffect(() => {
+  //   //trigger noti
+  //   if (closestStation){
+  //     sendNotification(`${closestStation}`, 'Cop or Not?');
+  //   }
+  // }, [closestStation]);
 
-  const [recentLogs, setLogs] = useState<Report[] | null>(null);
-
-  // // Monitor updates to recentLogs
+  // Monitor updates to recentLogs
   // useEffect(() => {
   //   //console.log('recentLogs updated:', recentLogs);
   // }, [recentLogs]);
 
 
   const handleClosestStationChange = (station: Station | null) => {
-    setClosestStation(station?.station || null);
+    if (
+      station &&
+      (closestStation?.station !== station.station || closestStation?.trains !== station.trains)
+    ) {
+      setClosestStation({ station: station.station, trains: station.trains });
+    }
   };
 
   useEffect(() => {
@@ -73,19 +79,28 @@ const App = () => {
         isNotPressed: false,
       });
     }
-  }, [closestStation])
+  }, [closestStation?.station])
   
   // Find the closest station when location or stations change
   useEffect(() => {
     async function fetchClosestStation() {
       if (location && stations.length > 0) {
         try {
-          const { closestStation } = getClosestStation(location.coords.latitude, location.coords.longitude);
-          if (closestStation) {
-            setClosestStation(closestStation.station);
+          const result = getClosestStation(location.coords.latitude, location.coords.longitude);
+          if (result.closestStation) {
+            if (
+              !closestStation ||
+              closestStation.station !== result.closestStation.station ||
+              closestStation.trains !== result.closestStation.trains
+            ) {
+              setClosestStation({
+                station: result.closestStation.station || '',
+                trains: result.closestStation.trains || '',
+              });
+            }
             //console.log('Closest station set:', closestStation.station);
           } else {
-            console.error('No closest station found.');
+            console.error('No closest station found,', error);
           }
         } catch (error) {
           console.error('Error fetching closest station:', error);
@@ -94,7 +109,7 @@ const App = () => {
     }
 
     fetchClosestStation();
-  }, [location, stations]);
+  }, [location]);
 
   // Fetch logs when dependencies change
   useEffect(() => {
@@ -102,14 +117,22 @@ const App = () => {
       //console.log('Triggering getLogs...');
       getLogs();
     }
-  }, [stations, closestStation, city]);
+  }, [closestStation?.station]);
 
   const getLogs = async () => {
+    if (!closestStation) return;
     try {
       //console.log('Fetching logs...');
       const response = await fetch(
-        `https://copornot.onrender.com/api/reports/${city}/${closestStation}`
+        `https://copornot.onrender.com/api/reports/${city}/${closestStation.station}?trains=${encodeURIComponent(
+          closestStation.trains
+        )}`
       );
+
+      if (response.status === 404){
+        setLogs([]);
+        return;
+      }
 
       if (!response.ok) {
         console.error('API error:', response.status, response.statusText);
@@ -141,7 +164,8 @@ const App = () => {
 
     const body = {
       cop: copStatus,
-      station: closestStation,
+      station: closestStation.station,
+      trains: closestStation.trains,
       timeStamp: timeStamp.toISOString(),
     };
 
@@ -166,74 +190,6 @@ const App = () => {
     postData(false, new Date());
     setButtonState({ ...buttonState, isNotPressed: true, isCopVisible: false });
   };
-
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      backgroundColor: '#261C2E',
-    },
-    copOrNotContainer: {
-      paddingTop: 20,
-      position: 'relative',
-      flex: 3,
-      width: '90%',
-      alignItems: 'center',
-      justifyContent: 'space-around',
-      flexDirection: 'row',
-      marginBottom: '2.5%',
-      backgroundColor: 'transparent',
-    },
-    buttonBase: {
-      flex: 1,
-      borderRadius: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      marginHorizontal: '2.5%',
-    },
-    cop: {
-      backgroundColor: '#5581E0',
-    },
-    not: {
-      backgroundColor: "#E3514C",
-    },
-    pressed: {
-      backgroundColor: 'grey',
-    },
-    copOrNotText: {
-      fontSize: 68,
-      color: 'white',
-      textAlign: 'center',
-    },
-    underText: {
-      fontSize: 16,
-      color: 'lightgrey',
-      textAlign: 'center',
-    },
-    logsContainer: {
-      flex: 4,
-      width: '90%',
-      borderRadius: 10,
-      marginVertical: '5%',
-      paddingRight: 10,
-      backgroundColor: '#191521',
-      alignItems: 'stretch',
-      justifyContent: 'flex-start',
-    },
-    whiteStripe: {
-      position: 'absolute',
-      top: 50,
-      width: '100%',
-      height: 2.5,
-      backgroundColor: 'white',
-    },
-    logScroll: {
-      flexGrow: 1,
-      //backgroundColor: 'white',
-    }
-  });
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -279,7 +235,74 @@ const App = () => {
         </ScrollView>
       </View>
     </ScrollView>
-  );
+  ); 
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#261C2E',
+  },
+  copOrNotContainer: {
+    paddingTop: 20,
+    position: 'relative',
+    flex: 3,
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    flexDirection: 'row',
+    marginBottom: '2.5%',
+    backgroundColor: 'transparent',
+  },
+  buttonBase: {
+    flex: 1,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    marginHorizontal: '2.5%',
+  },
+  cop: {
+    backgroundColor: '#5581E0',
+  },
+  not: {
+    backgroundColor: "#E3514C",
+  },
+  pressed: {
+    backgroundColor: 'grey',
+  },
+  copOrNotText: {
+    fontSize: 68,
+    color: 'white',
+    textAlign: 'center',
+  },
+  underText: {
+    fontSize: 16,
+    color: 'lightgrey',
+    textAlign: 'center',
+  },
+  logsContainer: {
+    flex: 4,
+    width: '90%',
+    borderRadius: 10,
+    marginVertical: '5%',
+    paddingRight: 10,
+    backgroundColor: '#191521',
+    alignItems: 'stretch',
+    justifyContent: 'flex-start',
+  },
+  whiteStripe: {
+    position: 'absolute',
+    top: 50,
+    width: '100%',
+    height: 2.5,
+    backgroundColor: 'white',
+  },
+  logScroll: {
+    flexGrow: 1,
+    //backgroundColor: 'white',
+  }
+});
 
 export default App;

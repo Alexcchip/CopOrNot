@@ -111,26 +111,42 @@ const getColorByPrefix = (shapeId) => {
   return colorMapping[prefix] || "white"; // Default to white if prefix not found
 };
 
+interface Station {
+  station: string;
+  trains: string | number;
+}
+
 export default function MapScreen() {
   const [recentLogs, setLogs] = useState<Report[] | null>(null);
   const colorScheme = useColorScheme();
   const { location, city } = useLocation();
   const { stations, error } = useStations();
-  const [selectedStation, setSelectedStation] = useState(null);
+  const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [polylines, setPolylines] = useState<Polyline[]>([]);
   const [markerImage, setMarkerImage] = useState(
     require('../../assets/images/stationRegular.png')
   );
 
-  const getLogs = async (selectedStation) => {
+  const getLogs = async (selectedStation: Station) => {
+    if (!selectedStation?.station || !selectedStation?.trains) {
+      console.error('Invalid station or trains');
+      return;
+    }
     try {
       //console.log('Fetching logs...');
       const response = await fetch(
-        `https://copornot.onrender.com/api/reports/${city}/${selectedStation.station}`
+        `https://copornot.onrender.com/api/reports/${city}/${selectedStation.station}?trains=${encodeURIComponent(
+          selectedStation.trains
+        )}`
       );
 
+      if (response.status === 404){
+        setLogs([]);
+        return;
+      }
+
       if (!response.ok) {
-        //console.error('API error:', response.status, response.statusText);
+        console.error('API error:', response.status, response.statusText);
         setLogs([]);
         return;
       }
@@ -139,6 +155,7 @@ export default function MapScreen() {
       //console.log('Raw API response:', data);
 
       const parsedData: Report[] = data
+        .filter((log: any) => String(log.trains) === String(selectedStation.trains)) // Filter using strings
         .map((log: any) => ({
           ...log,
           timeStamp: new Date(log.timeStamp), // Convert to Date object
@@ -166,10 +183,10 @@ export default function MapScreen() {
 
   //fetchign logs for station
   useEffect(() => {
-    if (selectedStation && selectedStation.station) {
+    if (selectedStation?.station && selectedStation?.trains) {
       getLogs(selectedStation); // Call getLogs with the station name
     }
-  }, [selectedStation])
+  }, [selectedStation?.station, selectedStation?.trains])
 
   //fetching polylines for map building
   useEffect(() => {
@@ -190,7 +207,7 @@ export default function MapScreen() {
     fetchPolylines();
   }, [city]);
 
-  const handleSelect = (station) => {
+  const handleSelect = (station: Station) => {
     setSelectedStation(station);
   };
 
