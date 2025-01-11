@@ -12,7 +12,7 @@ const getRecentLogs = async (req, res) => {
 
     const filter = {station};
     if (trainLines) {
-      filter.trains = trainLines; //match train lines
+      filter.trains = { $regex: `\\b${trainLines}\\b`, $options: 'i' }; // Match trainlines as a whole word
     }
 
     const logs = await collection
