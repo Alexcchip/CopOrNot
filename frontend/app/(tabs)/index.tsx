@@ -230,7 +230,7 @@ const App = () => {
             <CText style={styles.copOrNotText}>Cop</CText>
             {buttonState.isCopPressed && (
               <CText style={styles.underText} fontType="regular italic">
-                eating booty is healthier than eating poopy
+                btw the security dudes aint cops *hint hint*
               </CText>
             )}
           </TouchableOpacity>
@@ -245,7 +245,7 @@ const App = () => {
             <CText style={styles.copOrNotText}>Not</CText>
             {buttonState.isNotPressed && (
               <CText style={styles.underText} fontType="regular italic">
-                Do not put both arms on either side of the turnstile, lift your left, and swing forward to evade the $2.90 fare. Don't do that!
+                eating booty is healthier than eating poopy
               </CText>
             )}
           </TouchableOpacity>
