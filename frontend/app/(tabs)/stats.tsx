@@ -6,6 +6,7 @@ import { useLocation } from '../context/LocationContext'; // To get city
 import SearchHeader from '../components/SearchHeader';
 import PreviewBox from '../components/PreviewBox';
 import debounce from 'lodash/debounce';
+import LoadingText from '../components/LoadingText';
 
 type Station = {
   _id: string;
@@ -146,7 +147,8 @@ const Stats = () => {
       <View style={styles.container}>
         <SearchHeader onChange={handleChange} />
         <View style={styles.loadingContainer}>
-          <CText style={styles.loadingText}>Loading stations...</CText>
+          {/* <CText style={styles.loadingText}>Loading stations...</CText> */}
+          <LoadingText/>
         </View>
       </View>
     )

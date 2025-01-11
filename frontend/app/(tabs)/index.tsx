@@ -6,6 +6,7 @@ import { useLocation } from '../context/LocationContext';
 import Header from '../components/Header';
 import LogPreview from '../components/LogPreview';
 import axios from 'axios';
+import LoadingText from '../components/LoadingText';
 
 interface Station {
   station: string;
@@ -254,7 +255,7 @@ const App = () => {
       {/* Logs Section */}
       <View style={styles.logsContainer}>
         <ScrollView contentContainerStyle={styles.logScroll}>
-          {recentLogs ? <LogPreview logs={recentLogs} /> : <CText>Loading logs...</CText>}
+          {recentLogs ? <LogPreview logs={recentLogs} /> : <LoadingText/>}
         </ScrollView>
       </View>
     </ScrollView>
