@@ -67,6 +67,17 @@ const App = () => {
   //   //console.log('recentLogs updated:', recentLogs);
   // }, [recentLogs]);
 
+  useEffect(() => {
+    if (closestStation) {
+      //resetting button when station changes
+      setButtonState({
+        isCopVisible: true,
+        isNotVisible: true,
+        isCopPressed: false,
+        isNotPressed: false,
+      });
+    }
+  }, [closestStation]);
 
   const handleClosestStationChange = (station: Station | null) => {
     if (
@@ -313,8 +324,7 @@ const styles = StyleSheet.create({
   },
   logScroll: {
     flexGrow: 1,
-    alignItems: 'center',
-    color: "white"
+    //backgroundColor: 'white',
   }
 });
 
