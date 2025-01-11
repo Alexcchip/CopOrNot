@@ -44,7 +44,7 @@ const LogPreview: React.FC<LogPreviewProps> = ({ logs, onClose }) => {
           <Log
             key={index}
             timestamp={log.timeStamp}
-            station={log.station}
+            station={log.timeStamp.toLocaleDateString()} //used to show date instead
             copOrNot={log.cop}
             leftStyle={{ color: 'grey' }}
             rightStyle={{ color: 'grey' }}
