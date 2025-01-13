@@ -10,9 +10,16 @@ const getRecentLogs = async (req, res) => {
     const collectionName = `${city}_reports`;
     const collection = db.collection(collectionName);
 
-    const filter = {station};
+    // Construct filter
+    const filter = { station }; // Match station exactly
+
     if (trainLines) {
-      filter.trains = { $regex: `\\b${trainLines}\\b`, $options: 'i' }; // Match trainlines as a whole word
+      const escapeRegex = (string) =>
+        string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      filter.trains = {
+        $regex: `(^|\\s)${escapeRegex(trainLines.trim().toUpperCase())}(\\s|$)`,
+        $options: 'i', // Case-insensitive
+      };
     }
 
     const logs = await collection

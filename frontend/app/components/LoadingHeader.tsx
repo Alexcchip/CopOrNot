@@ -2,7 +2,7 @@ import React, { useState, useEffect }from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CText from './CText'
 
-const LoadingText = () => {
+const LoadingHeader = () => {
     const [dots, setDots] = useState('')
 
     useEffect(() => {
@@ -29,18 +29,14 @@ const styles = StyleSheet.create({
     container: {
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#191521',
       padding: 20,
-      borderRadius: 15,
-      margin: 10,
+      paddingLeft: 20,
       alignSelf: 'center',
-      height: 100,
     },
     loadingText: {
-      fontSize: 35,
-      fontWeight: 'bold',
+      fontSize: 48,
       color: 'white',
     },
   });
 
-export default LoadingText;
+export default LoadingHeader;

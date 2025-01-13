@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
       width: '100%',
       padding: 10,
       margin: 10,
-      borderRadius: 10,
+      borderRadius: 15,
       backgroundColor: '#191521',
     },
     logContainer: {

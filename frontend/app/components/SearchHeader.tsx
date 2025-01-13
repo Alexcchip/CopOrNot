@@ -39,7 +39,7 @@ export default function SearchHeader({onChange} : SearchHeaderProps) {
         height: 60,
         borderColor: '#444',
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 15,
         paddingHorizontal: 10,
         color: 'white',
         backgroundColor: '#000',

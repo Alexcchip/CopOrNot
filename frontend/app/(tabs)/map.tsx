@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     position: 'absolute', // Place it above the map
     bottom: 30, // Adjust position from the bottom
     width: '90%',
-    borderRadius: 10,
+    borderRadius: 15,
     backgroundColor: '#191521',
     alignItems: 'center',
     justifyContent: 'center',

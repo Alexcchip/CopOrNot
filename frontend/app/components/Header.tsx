@@ -5,6 +5,7 @@ import { useLocation } from '../context/LocationContext';
 import {View, StyleSheet, StatusBar} from 'react-native'
 import TrainIcon from '../components/TrainIcon'
 import * as Location from 'expo-location';
+import LoadingHeader from '../components/LoadingHeader';
 
 type Station = {
     lat: number;
@@ -61,7 +62,7 @@ export default function Header({onClosestStationChange}: HeaderProps) {
         flex: 2,
         width: '100%',
         paddingTop: 10,
-        paddingLeft: 10,
+        paddingLeft: 20,
         color: "white",
         fontSize: 48,
       },
@@ -84,17 +85,19 @@ export default function Header({onClosestStationChange}: HeaderProps) {
         margin: 0,
         padding: 0,
         justifyContent: 'center',
+        marginTop: 10,
       }
     });
 
+    // render when loading
     if (isLoading){
       return (
         <View style={styles.headerContainer}>
           <View style={styles.whiteStripe} />
-          <CText style={styles.headerText}>Loading...</CText>
-          <View style={styles.trainIconsContainer}>
+            <LoadingHeader />
+          {/* <View style={styles.trainIconsContainer}>
             <TrainIcon trainLine='SIR' />
-          </View>
+          </View> */}
           <StatusBar translucent backgroundColor="transparent" />
         </View>
       );
