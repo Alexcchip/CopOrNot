@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,6 +13,25 @@ export default function RootLayout() {
     'Helvetica-Bold-Oblique': require('../assets/fonts/helvetica/Helvetica-Bold-Oblique.ttf'),
     'Helvetica-Light-Oblique': require('../assets/fonts/helvetica/Helvetica-Light-Oblique.ttf'),
   });
+
+  useEffect(() => {
+    async function prepare() {
+      if (!fontsLoaded){
+        await SplashScreen.preventAutoHideAsync();
+      }
+    }
+    prepare();
+  }, [fontsLoaded]);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
   
   return (
     <View style={styles.container}><Stack

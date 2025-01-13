@@ -25,7 +25,7 @@ const LogPreview: React.FC<LogPreviewProps> = ({ logs, onClose }) => {
         {logs.length > 0 && (
           <Log
             timestamp={logs[0].timeStamp}
-            station={logs[0].station}
+            station={logs[0].timeStamp.toLocaleDateString()}
             copOrNot={logs[0].cop}
             leftStyle={{
               color: logs[0].cop ? '#5581E0' : "#E3514C",
