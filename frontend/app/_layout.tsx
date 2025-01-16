@@ -1,8 +1,11 @@
 import React, { useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { Stack } from 'expo-router';
+
+// Keep the splash screen visible while loading assets
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -15,12 +18,12 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    async function prepare() {
-      if (!fontsLoaded){
-        await SplashScreen.preventAutoHideAsync();
+    async function hideSplashScreen() {
+      if (fontsLoaded) {
+        await SplashScreen.hideAsync();
       }
     }
-    prepare();
+    hideSplashScreen();
   }, [fontsLoaded]);
 
   const onLayoutRootView = useCallback(async () => {
@@ -30,11 +33,12 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null;
+    return null; // Show nothing until fonts are ready
   }
-  
+
   return (
-    <View style={styles.container}><Stack
+    <View style={styles.container} onLayout={onLayoutRootView}>
+      <Stack
         screenOptions={{
           headerStyle: { backgroundColor: 'white' },
           headerTintColor: 'black',
